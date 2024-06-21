@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Horse : MonoBehaviour
 {
-    [SerializeField] Player player;
+    Player player;
     ThirdPersonController thirdPersonController;
     Animator animator;
     bool isPlayerRidingHorse;
@@ -16,6 +16,7 @@ public class Horse : MonoBehaviour
 
     void Start()
     {
+        player = GameObject.Find("Player").GetComponent<Player>();
         thirdPersonController = player.gameObject.GetComponent<ThirdPersonController>();
     }
 

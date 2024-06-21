@@ -56,8 +56,9 @@ public class Bullet : MonoBehaviour
         {
             madeHit = true;
             player.HandleNPCHit();
-            // put camera before NPC
-            transform.position = hitPosition - 8 * moveDir;
+            // put camera in front of NPC
+            transform.position = hitPosition - 10 * moveDir;
+            transform.GetChild(0).GetComponent<Renderer>().enabled = false;
             Invoke("EndOfLife", 1.5f);
         }
         previousDistance = distance;

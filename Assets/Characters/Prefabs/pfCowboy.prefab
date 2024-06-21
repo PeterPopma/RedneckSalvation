@@ -2517,7 +2517,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isFemale: 0
-  useRagdoll: 1
+  useRagdoll: 0
   initialState: 0
   hips: {fileID: 4582661196632046274}
   rigidbody: {fileID: 6714321719174029130}

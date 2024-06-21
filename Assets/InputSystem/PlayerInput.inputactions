@@ -54,7 +54,7 @@
                     "name": "Aim",
                     "type": "Value",
                     "id": "7c460b39-0b32-4a7c-b722-a8728b72f429",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -72,7 +72,25 @@
                     "name": "Unmount",
                     "type": "Button",
                     "id": "cc763cf8-a6df-4b5d-83f7-c475550e1272",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Map",
+                    "type": "Value",
+                    "id": "b2485486-37d8-4825-86b1-e40c9ae48db0",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Release",
+                    "type": "Button",
+                    "id": "3abdd01d-2a53-4207-a075-db7adccb8f73",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -296,6 +314,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Unmount",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9b51c7b9-6c37-47fb-9823-69a5f7e2b16b",
+                    "path": "<Keyboard>/m",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Map",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2c62a82e-e448-44a4-9b82-7966ff000b0e",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Release",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

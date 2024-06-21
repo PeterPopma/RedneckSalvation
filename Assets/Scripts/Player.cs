@@ -26,10 +26,12 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject aimPoint;
     [SerializeField] private GameObject imageIconWeapon;
     [SerializeField] private GameObject imageUnmount;
+    [SerializeField] private GameObject imageRelease;
     [SerializeField] private GameObject pistol;
     [SerializeField] private GameObject rifle;
     [SerializeField] private GameObject dynamite;
     [SerializeField] private GameObject pfDynamite;
+    [SerializeField] private GameObject panelMap;
     //    [SerializeField] private GameObject hitIndicator;
     //    [SerializeField] private Material matIndicator1;
     //    [SerializeField] private Material matIndicator2;
@@ -39,11 +41,15 @@ public class Player : MonoBehaviour
     [SerializeField] private Transform pfShell;
     [SerializeField] private Rigidbody rigidbody;
     [SerializeField] private Transform hips;
+    [SerializeField] Slider sliderHealthBar;
 
+    private GameObject objectInHand;
+    private UI UIScript;
     private Horse horse;
     private AudioSource soundGunshot;
     private AudioSource soundWoosh;
     private AudioSource soundPunch;
+    private AudioSource soundDieMale;
     private AudioSource soundScreamMale;
     private AudioSource soundScreamMale2;
     bool smokeCreated;
@@ -54,6 +60,7 @@ public class Player : MonoBehaviour
     float timeLeftBlood;
     float timeLeftExploded; 
     float timeLastDynamiteThrow;
+    float timeLeftDying;
     private bool throwingDynamite = false;
     private bool thrownDynamite = false;
     private Vector3 hitPosition;
@@ -63,6 +70,7 @@ public class Player : MonoBehaviour
     private NPC hitNPC;
     bool hitEnemy;
     int activeWeapon;
+    int health = 100;
 
     [Header("Character Input Values")]
     public Vector2 move;
@@ -79,6 +87,7 @@ public class Player : MonoBehaviour
 
     public float TimeLeftPunching { get => timeLeftPunching; set => timeLeftPunching = value; }
     public Horse Horse { get => horse; set => horse = value; }
+    public GameObject ObjectInHand { get => objectInHand; set => objectInHand = value; }
 
     // Start is called before the first frame update
     void Start()
@@ -91,8 +100,9 @@ public class Player : MonoBehaviour
         soundGunshot = GameObject.Find("/Sound/Gunshot").GetComponent<AudioSource>();
         soundWoosh = GameObject.Find("/Sound/Woosh").GetComponent<AudioSource>();
         soundPunch = GameObject.Find("/Sound/Punch").GetComponent<AudioSource>();
-        soundScreamMale = GameObject.Find("/Sound/ScreamMale").GetComponent<AudioSource>();
-        soundScreamMale2 = GameObject.Find("/Sound/ScreamMale2").GetComponent<AudioSource>();
+        soundDieMale = GameObject.Find("/Sound/DyingMale3").GetComponent<AudioSource>();
+        soundScreamMale = GameObject.Find("/Sound/ScreamMale2").GetComponent<AudioSource>();
+        soundScreamMale2 = GameObject.Find("/Sound/ScreamMale3").GetComponent<AudioSource>();
         characterController = gameObject.GetComponent<CharacterController>();
         pistol.SetActive(false);
         rifle.SetActive(false);
@@ -101,6 +111,7 @@ public class Player : MonoBehaviour
         rigRifle.weight = 0;
         rigHorse.weight = 0;
         imageUnmount.SetActive(false);
+        imageRelease.SetActive(false);
         particleSystem.Stop();
 
         activeWeapon = WEAPON_PISTOL;
@@ -108,10 +119,28 @@ public class Player : MonoBehaviour
         rigRifle.weight = 0;
         pistol.SetActive(true);
         imageIconWeapon.GetComponent<Image>().sprite = Resources.Load<Sprite>("icon_pistol");
+        UIScript = GameObject.Find("/Scripts/UI").GetComponent<UI>();
+        sliderHealthBar.value = 1 - (health / 100f);
     }
 
     public void Hit()
     {
+        if (timeLeftDying > 0)
+        {
+            return;
+        }
+        particleSystem.transform.position = bloodSpawnPosition.transform.position;
+        particleSystem.Play();
+        timeLeftBlood = 0.5f;
+        health -= 5;
+        sliderHealthBar.value = 1 - (health / 100f);
+        if (health <= 0)
+        {
+            soundDieMale.Play();
+            Explode(0);
+            timeLeftDying = 4;
+        }
+
         if (Random.value < .5)
         {
             soundScreamMale.Play();
@@ -120,14 +149,21 @@ public class Player : MonoBehaviour
         {
             soundScreamMale2.Play();
         }
-        particleSystem.transform.position = bloodSpawnPosition.transform.position;
-        particleSystem.Play();
-        timeLeftBlood = 0.5f;
+    }
+
+    public void PutObjectInHand(GameObject objectInHand)
+    {
+        this.objectInHand = objectInHand;
+        imageRelease.SetActive(true);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (timeLeftDying > 0)
+        {
+            timeLeftDying -= Time.deltaTime;
+        }
         if (timeLeftExploded > 0)
         {
             timeLeftExploded -= Time.deltaTime;
@@ -261,9 +297,21 @@ public class Player : MonoBehaviour
 //            hitIndicator.GetComponent<Renderer>().material = matIndicator2;
         }
 //        hitIndicator.transform.position = hitPosition;
+    }
+
+    private void CheckEnemyHit()
+    {
         if (hitTransForm != null)
         {
             hitNPC = hitTransForm.GetComponent<NPC>();
+            if (hitNPC == null)
+            {
+                Tent tent = hitTransForm.GetComponent<Tent>();
+                if (tent != null)
+                {
+                    tent.Hit();
+                }
+            }
         }
         else
         {
@@ -331,6 +379,20 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void OnRelease()
+    {
+        if (objectInHand != null)
+        {
+            imageRelease.SetActive(false);
+            objectInHand.GetComponent<MoveableItem>().TimeLeftThrowing = 2;
+            objectInHand.transform.parent = null;
+            objectInHand.GetComponent<Rigidbody>().isKinematic = false;
+            objectInHand.GetComponent<Rigidbody>().AddForce(new Vector3(Random.value * 8, 10, Random.value * 8), ForceMode.VelocityChange);
+            objectInHand.GetComponent<Rigidbody>().AddTorque(Random.insideUnitSphere * 5, ForceMode.VelocityChange);
+            objectInHand = null;
+        }
+    }
+
     private void OnShoot()
     {
         if (activeWeapon == WEAPON_PUNCH && timeLeftPunching <= 0)
@@ -343,50 +405,18 @@ public class Player : MonoBehaviour
         }
         if (activeWeapon == WEAPON_PISTOL)
         {
-            timeLeftShooting = 0.7f;
             animator.Play("Shoot", LAYER_SHOOT, 0);
             animator.SetLayerWeight(LAYER_SHOOT, 1);
-            smokeCreated = false;
             soundGunshot.Play();
-            HandleShooting();
-            if (hitNPC != null)
-            {
-                if (hitNPC.TimesHit > 1 && !hitNPC.HasDied && hitNPC.UseRagdoll == false && Random.value > 0.5)
-                {
-                    hitNPC.NpcState = NPCState_.StandingStill;
-                    GameObject bullet = Instantiate(pfBullet, gunFirePistol.transform.position, Quaternion.LookRotation(transform.forward, Vector3.up));
-                    Bullet bulletScript = bullet.GetComponent<Bullet>();
-                    bulletScript.Setup(hitPosition, this);
-                }
-                else
-                {
-                    HandleNPCHit();
-                }
-            }
+            ShootGun(gunFirePistol);
         }
         if (activeWeapon == WEAPON_RIFLE)
         {
-            timeLeftShooting = 0.7f;
             animator.Play("FireRifle", LAYER_FIRERIFLE, 0);
             animator.SetLayerWeight(LAYER_FIRERIFLE, 1);
-            smokeCreated = false;
             soundGunshot.Play();
-            HandleShooting();
             Instantiate(pfShell, rifle.transform.position, Quaternion.LookRotation(transform.forward, Vector3.up));
-            if (hitNPC != null)
-            {
-                if (hitNPC.TimesHit > 1 && !hitNPC.HasDied && hitNPC.UseRagdoll == false && Random.value > 0.5)
-                {
-                    hitNPC.NpcState = NPCState_.StandingStill;
-                    GameObject bullet = Instantiate(pfBullet, gunFireRifle.transform.position, Quaternion.LookRotation(transform.forward, Vector3.up));
-                    Bullet bulletScript = bullet.GetComponent<Bullet>();
-                    bulletScript.Setup(hitPosition, this);
-                }
-                else
-                {
-                    HandleNPCHit();
-                }
-            }
+            ShootGun(gunFireRifle);
         }
         if (activeWeapon == WEAPON_DYNAMITE)
         {
@@ -397,14 +427,36 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void Explode()
+    private void ShootGun(GameObject gunFire)
+    {
+        timeLeftShooting = 0.7f;
+        smokeCreated = false;
+        HandleShooting();
+        CheckEnemyHit();
+        if (hitNPC != null)
+        {
+            if (hitNPC.TimesHit > 1 && !hitNPC.HasDied && hitNPC.UseRagdoll == false && Random.value > 0.5)
+            {
+                hitNPC.NpcState = NPCState_.StandingStill;
+                GameObject bullet = Instantiate(pfBullet, gunFire.transform.position, Quaternion.LookRotation(transform.forward, Vector3.up));
+                Bullet bulletScript = bullet.GetComponent<Bullet>();
+                bulletScript.Setup(hitPosition, this);
+            }
+            else
+            {
+                HandleNPCHit();
+            }
+        }
+
+    }
+
+    public void Explode(int strength = 80)
     {
         vcamRagdoll.enabled = true;
         characterController.enabled = false;
         animator.enabled = false;
-        rigidbody.AddForce(new Vector3(0, 80, 0), ForceMode.VelocityChange);
+        rigidbody.AddForce(new Vector3(0, strength, 0), ForceMode.VelocityChange);
         rigidbody.AddTorque(Random.insideUnitSphere, ForceMode.VelocityChange);
-        //rigidbodyMain.AddExplosionForce(300, new Vector3(transform.position.x, transform.position.y - 2, transform.position.z), 3);
         timeLeftExploded = 4;
     }
 
@@ -500,5 +552,11 @@ public class Player : MonoBehaviour
     private void SetCursorState(bool newState)
     {
         Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
+    }
+
+    private void OnMap(InputValue value)
+    {
+        UIScript.ShowMap = value.isPressed;
+        //panelMap.SetActive(value.isPressed);
     }
 }

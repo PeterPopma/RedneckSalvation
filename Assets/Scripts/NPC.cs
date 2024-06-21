@@ -7,7 +7,8 @@ public enum NPCState_
     WalkingAround,
     FollowingPlayer,
     Falling,
-    StandingStill
+    StandingStill,
+    Patrol
 }
 
 public class NPC : MonoBehaviour
@@ -45,6 +46,8 @@ public class NPC : MonoBehaviour
     private float timeLeftExploded;
     private float playerLowerValue;
     private Vector2 destination;
+    private List<Vector2> patrolRallyPoints = new List<Vector2>();
+    private int currentRallyPointIndex;
     private bool hasDied;
     private int timesHit;
     private bool pistolActive;
@@ -68,30 +71,47 @@ public class NPC : MonoBehaviour
         soundDyingMale2 = GameObject.Find("/Sound/DyingMale2").GetComponent<AudioSource>();
         soundDyingFemale = GameObject.Find("/Sound/DyingFemale").GetComponent<AudioSource>();
         soundGunshot = GameObject.Find("/Sound/Gunshot").GetComponent<AudioSource>();
-
-        if( Random.value < 0.5)
-        {
-            pistolActive = true;
-        }
-        else
-        {
-            pistolActive = false;
-            pistol.SetActive(false);
-        }
-        if (!useRagdoll)
-        {
-            // if it is not a default ragdoll, use it sometimes anyway for variation
-            useRagdoll = Random.value > 0.6f;
-        }
     }
 
     private void Start()
     {
         npcState = initialState;
-        NewRandomDestination();
         player = GameObject.Find("Player").GetComponent<Player>();
+
+        if (pistol != null)
+        {
+            if (Random.value < 0.5)
+            {
+                pistolActive = true;
+            }
+            else
+            {
+                pistolActive = false;
+                pistol.SetActive(false);
+            }
+        }
+        if (!useRagdoll)
+        {
+            // if it is not a default ragdoll, use it sometimes anyway for variation
+            useRagdoll = Random.value > 0.7f;
+        }
+        if (initialState.Equals(NPCState_.Patrol))
+        {
+            patrolRallyPoints.Add(new Vector2(transform.position.x - 5 + Random.value * 10, transform.position.z - 5 + Random.value * 10));
+            patrolRallyPoints.Add(new Vector2(transform.position.x - 5 + Random.value * 10, transform.position.z - 5 + Random.value * 10));
+        }
+        NewDestination();
     }
 
+    private void SetNextPatrolDestination()
+    {
+        currentRallyPointIndex++;
+        if (currentRallyPointIndex >= patrolRallyPoints.Count)
+        {
+            currentRallyPointIndex = 0;
+        }
+        destination = patrolRallyPoints[currentRallyPointIndex];
+    }
 
     void Update()
     {
@@ -201,6 +221,7 @@ public class NPC : MonoBehaviour
         switch (npcState)
         {
             case NPCState_.WalkingAround:
+            case NPCState_.Patrol:
                 Move();
                 break;
             case NPCState_.StandingStill:
@@ -244,7 +265,7 @@ public class NPC : MonoBehaviour
             }
             else
             {
-                NewRandomDestination();
+                NewDestination();
             }
         }
         animator.SetFloat(animIDSpeed, currentSpeed);
@@ -265,9 +286,17 @@ public class NPC : MonoBehaviour
         timeLeftExploded = 4;
     }
 
-    private void NewRandomDestination()
+    private void NewDestination()
     {
-        destination = new Vector2(Random.value * (Settings.PLAYFIELD_MAX_X - Settings.PLAYFIELD_MIN_X) + Settings.PLAYFIELD_MIN_X, Random.value * (Settings.PLAYFIELD_MAX_Z - Settings.PLAYFIELD_MIN_Z) + Settings.PLAYFIELD_MIN_Z);
+        if (npcState == NPCState_.Patrol)
+        {
+           SetNextPatrolDestination();
+        }
+        else
+        {
+            destination = new Vector2(Random.value * (Settings.PLAYFIELD_MAX_X - Settings.PLAYFIELD_MIN_X) + Settings.PLAYFIELD_MIN_X,
+                Random.value * (Settings.PLAYFIELD_MAX_Z - Settings.PLAYFIELD_MIN_Z) + Settings.PLAYFIELD_MIN_Z);
+        }
     }
 
     public void Hit(Vector3 hitPosition, Vector3 playerPosition)
@@ -355,7 +384,7 @@ public class NPC : MonoBehaviour
                 {
                     Destroy(gameObject);
                 }
-                NewRandomDestination();
+                NewDestination();
             }
             else
             {
@@ -377,7 +406,7 @@ public class NPC : MonoBehaviour
             else
             {
                 animator.SetFloat(animIDSpeed, 0);
-                NewRandomDestination();
+                NewDestination();
             }
         }
     }

@@ -27,7 +27,7 @@ public class DayTime : MonoBehaviour
 
     void FixedUpdate()
     {
-        //minuteOfDay += 0.2f;
+        minuteOfDay += 0.2f;
         if(minuteOfDay >= MINUTES_PER_DAY)
         {
             minuteOfDay = 0;
