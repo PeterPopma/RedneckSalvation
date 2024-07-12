@@ -24,8 +24,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: LocalClouds_Material
-  m_Shader: {fileID: -6465566751694194690, guid: 713a6f8cc6afcf64bbac7c8aff8f5e79,
-    type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 713a6f8cc6afcf64bbac7c8aff8f5e79, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -90,21 +89,21 @@ Material:
     - _Erode_On_Border: 0.75
     - _Float: 0.47
     - _FogVolumeAlphaBlendOp: 0
-    - _FogVolumeBlendMode: 0
+    - _FogVolumeBlendMode: 1
     - _FogVolumeColorBlendOp: 0
-    - _FogVolumeDstAlphaBlend: 0
-    - _FogVolumeDstColorBlend: 0
-    - _FogVolumeFogDistanceProperty: 0.1
+    - _FogVolumeDstAlphaBlend: 1
+    - _FogVolumeDstColorBlend: 1
+    - _FogVolumeFogDistanceProperty: 1
     - _FogVolumeSrcAlphaBlend: 1
     - _FogVolumeSrcColorBlend: 1
-    - _Main_Noise_Tiling: 10
+    - _Main_Noise_Tiling: 0.5
     - _OpaqueCullMode: 2
     - _Pow: 0.96
-    - _Power: 4.46
+    - _Power: 2
     - _RenderQueueType: 1
     - _Secondary_Noise: 0.1
     - _Secondary_Noise_Intensity: 0.1
-    - _Secondary_Noise_Tiling: 200
+    - _Secondary_Noise_Tiling: 3
     - _SrcBlend: 1
     - _SurfaceType: 0
     - _Tiling: 0.5

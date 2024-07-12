@@ -2916,7 +2916,7 @@ Transform:
   m_GameObject: {fileID: 7581643769558584969}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 752.7932, y: 47.825024, z: 3090.3606}
+  m_LocalPosition: {x: 752.7932, y: 47.82502, z: 3090.361}
   m_LocalScale: {x: 1.7, y: 1.7, z: 1.7}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2992,6 +2992,7 @@ MonoBehaviour:
   gunFirePistol: {fileID: 5582408325089017406}
   vfxFireGun: {fileID: 400000, guid: 4ecfa3d3919108f4fbff80d1c4d920a1, type: 3}
   pistol: {fileID: 1170290519487222694}
+  aggresiveness: 0.5
 --- !u!136 &605144696303429830
 CapsuleCollider:
   m_ObjectHideFlags: 0

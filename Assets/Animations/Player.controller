@@ -462,7 +462,7 @@ AnimatorController:
   - serializedVersion: 5
     m_Name: Ride
     m_StateMachine: {fileID: -3034483132335254373}
-    m_Mask: {fileID: 31900000, guid: 941c5a801a685a649811becb19524a38, type: 2}
+    m_Mask: {fileID: 0}
     m_Motions: []
     m_Behaviours: []
     m_BlendingMode: 0

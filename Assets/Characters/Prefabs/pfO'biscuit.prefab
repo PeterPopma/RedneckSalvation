@@ -601,7 +601,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: c2096930ed068c24283f4fd664cc60ac, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1591.2668
+      value: 1591.267
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: c2096930ed068c24283f4fd664cc60ac, type: 3}
       propertyPath: m_LocalPosition.y
@@ -609,7 +609,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: c2096930ed068c24283f4fd664cc60ac, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 3492.9795
+      value: 3492.979
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: c2096930ed068c24283f4fd664cc60ac, type: 3}
       propertyPath: m_LocalRotation.w
@@ -663,6 +663,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 8409257298702160399}
+    - targetCorrespondingSourceObject: {fileID: 100002, guid: c2096930ed068c24283f4fd664cc60ac,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 859153471236577842}
     - targetCorrespondingSourceObject: {fileID: 100054, guid: c2096930ed068c24283f4fd664cc60ac,
         type: 3}
       insertIndex: -1
@@ -1600,9 +1604,9 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 1.64
-  m_Radius: 0.35
-  m_SlopeLimit: 45
+  m_Height: 1.16
+  m_Radius: 0.19
+  m_SlopeLimit: 70
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
@@ -1626,8 +1630,8 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.35
-  m_Height: 1.64
+  m_Radius: 0.23
+  m_Height: 1.79
   m_Direction: 1
   m_Center: {x: 0, y: 0.87, z: 0}
 --- !u!114 &8409257298702160399
@@ -1644,13 +1648,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isFemale: 0
   useRagdoll: 0
-  initialState: 0
+  initialState: 4
   hips: {fileID: 3190573910966601930}
   rigidbody: {fileID: 756341213838955332}
   handPosition: {fileID: 3190573910966703234}
   gunFirePistol: {fileID: 3524903212112374789}
   vfxFireGun: {fileID: 400000, guid: 4ecfa3d3919108f4fbff80d1c4d920a1, type: 3}
   pistol: {fileID: 4752671508881512654}
+  aggresiveness: 0.5
+--- !u!114 &859153471236577842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3190573910966703326}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96946f573a0149d40bb74b85ab57dbf7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3190573910966703480 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100100, guid: c2096930ed068c24283f4fd664cc60ac,

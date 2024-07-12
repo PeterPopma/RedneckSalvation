@@ -26,13 +26,14 @@ public class NPC : MonoBehaviour
     [SerializeField] private GameObject gunFirePistol;
     [SerializeField] private Transform vfxFireGun;
     [SerializeField] private GameObject pistol;
+    [SerializeField] private float aggresiveness = 0.5f;
 
     private AudioSource soundGunshot;
     private CharacterController characterController;
     private Animator animator;
     private AudioSource soundScreamMale, soundScreamMale2, soundScreamFemale;
     private AudioSource soundDyingMale, soundDyingMale2, soundDyingFemale;
-    private NPCState_ npcState;
+    private NPCState_ npcState, initialNPCState;
     private Vector3 storedPosition;
     private Vector3 positionBeforeDying;
     private Player player;
@@ -75,12 +76,12 @@ public class NPC : MonoBehaviour
 
     private void Start()
     {
-        npcState = initialState;
+        initialNPCState = npcState = initialState;
         player = GameObject.Find("Player").GetComponent<Player>();
 
         if (pistol != null)
         {
-            if (Random.value < 0.5)
+            if (Random.value <= aggresiveness)
             {
                 pistolActive = true;
             }
@@ -97,13 +98,21 @@ public class NPC : MonoBehaviour
         }
         if (initialState.Equals(NPCState_.Patrol))
         {
-            patrolRallyPoints.Add(new Vector2(transform.position.x - 5 + Random.value * 10, transform.position.z - 5 + Random.value * 10));
+            patrolRallyPoints.Add(new Vector2(transform.position.x, transform.position.z));
             patrolRallyPoints.Add(new Vector2(transform.position.x - 5 + Random.value * 10, transform.position.z - 5 + Random.value * 10));
         }
         NewDestination();
     }
 
-    private void SetNextPatrolDestination()
+    public void SetPatrolDestinations(Vector2 destination)
+    {
+        npcState = NPCState_.Patrol;
+        patrolRallyPoints.Clear();
+        patrolRallyPoints.Add(new Vector2(transform.position.x, transform.position.z));
+        patrolRallyPoints.Add(destination);
+    }
+
+    private void NextPatrolDestination()
     {
         currentRallyPointIndex++;
         if (currentRallyPointIndex >= patrolRallyPoints.Count)
@@ -208,7 +217,7 @@ public class NPC : MonoBehaviour
             }
             else
             {
-                npcState = NPCState_.WalkingAround;
+                npcState = initialNPCState;
             }
         }
 
@@ -290,7 +299,7 @@ public class NPC : MonoBehaviour
     {
         if (npcState == NPCState_.Patrol)
         {
-           SetNextPatrolDestination();
+           NextPatrolDestination();
         }
         else
         {
@@ -369,11 +378,16 @@ public class NPC : MonoBehaviour
         }
         npcState = NPCState_.Falling;
         playerLowerValue = 0;
+        if (GetComponent<OBiscuit>() != null)
+        {
+            MissionOBiscuit mission = (MissionOBiscuit)Game.Instance.Missions.Find(o => o.Name == "obiscuit");
+            mission.DecreaseGangMembers();
+        }
     }
 
     private void Move()
     {
-        if (Time.time - timeLastDistanceMeasurement > 5)
+        if (npcState != NPCState_.Patrol && Time.time - timeLastDistanceMeasurement > 5)
         {
             timeLastDistanceMeasurement = Time.time;
             if ((storedPosition - transform.position).magnitude < 0.1f)

@@ -33,10 +33,19 @@ public class Dynamite : MonoBehaviour
         {
             Vector3 explosionPos = transform.position;
             Collider[] colliders = Physics.OverlapSphere(explosionPos, 20.0f);
+            bool containsExplodable = false;
 
             foreach (Collider collider in colliders)
             {
-                if (collider.gameObject.GetComponent<Player>() != null)
+                if (collider.gameObject.GetComponent<Explodable>() != null)
+                {
+                    collider.gameObject.GetComponent<Explodable>().Explode();
+                    containsExplodable = true;
+                }
+            }
+            foreach (Collider collider in colliders)
+            {
+                if (!containsExplodable && collider.gameObject.GetComponent<Player>() != null)
                 {
                     collider.gameObject.GetComponent<Player>().Explode();
                 }

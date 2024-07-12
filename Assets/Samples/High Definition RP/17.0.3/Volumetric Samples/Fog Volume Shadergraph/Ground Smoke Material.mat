@@ -63,27 +63,27 @@ Material:
     - _AlphaDstBlend: 0
     - _AlphaSrcBlend: 1
     - _BlendMode: 0
-    - _Color_Gradient_End: -0.45
+    - _Color_Gradient_End: 0.1
     - _ConservativeDepthOffsetEnable: 0
     - _Counter_Flow_Speed: 0.25
     - _CullMode: 2
     - _CullModeForward: 2
     - _DepthOffsetEnable: 0
     - _DetailSpeed: 1
-    - _Detail_Tiling: 44
+    - _Detail_Tiling: 0.85
     - _DoubleSidedEnable: 0
     - _DoubleSidedGIMode: 0
     - _DoubleSidedNormalMode: 2
     - _DstBlend: 0
     - _EnableFogOnTransparent: 1
-    - _Flatten: 2.06
+    - _Flatten: 2
     - _Float: 4
     - _FogVolumeAlphaBlendOp: 0
-    - _FogVolumeBlendMode: 0
+    - _FogVolumeBlendMode: 1
     - _FogVolumeColorBlendOp: 0
-    - _FogVolumeDstAlphaBlend: 0
-    - _FogVolumeDstColorBlend: 0
-    - _FogVolumeFogDistanceProperty: 0.47
+    - _FogVolumeDstAlphaBlend: 1
+    - _FogVolumeDstColorBlend: 1
+    - _FogVolumeFogDistanceProperty: 0.92
     - _FogVolumeSrcAlphaBlend: 1
     - _FogVolumeSrcColorBlend: 1
     - _Height_Tiling: 1.84
@@ -97,7 +97,7 @@ Material:
     - _SrcBlend: 1
     - _SurfaceType: 0
     - _TIling: 1
-    - _Tiling: 100
+    - _Tiling: 0.5
     - _TransparentBackfaceEnable: 0
     - _TransparentCullMode: 2
     - _TransparentDepthPostpassEnable: 0
@@ -113,7 +113,7 @@ Material:
     - _ZWrite: 1
     - _alpha: 1
     m_Colors:
-    - _Bottom_Color: {r: 0, g: 0, b: 0, a: 1}
+    - _Bottom_Color: {r: 1, g: 0.7115072, b: 0.572327, a: 1}
     - _Color: {r: 1, g: 0.92878336, b: 0.83647794, a: 0}
     - _Color2: {r: 0.7169812, g: 0.55657834, b: 0.34270793, a: 1}
     - _DetailDirection: {r: 0, g: 0, b: 1, a: 0}
@@ -122,7 +122,7 @@ Material:
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _FogVolumeSingleScatteringAlbedo: {r: 1, g: 1, b: 1, a: 1}
     - _Offset: {r: 0, g: 0, b: 0, a: 0}
-    - _Top_Color: {r: 0.735849, g: 0.735849, b: 0.735849, a: 1}
+    - _Top_Color: {r: 1, g: 0.94102645, b: 0.83647794, a: 1}
     - _Vector3: {r: 1, g: 0, b: 0, a: 0}
     - _Wind_Direction: {r: 1, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

@@ -1,4 +1,6 @@
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UI : MonoBehaviour
 {
@@ -10,7 +12,12 @@ public class UI : MonoBehaviour
     [SerializeField] GameObject imageMKey;
     [SerializeField] private RectTransform minimapDotBlue;
     [SerializeField] private Shader blendShader;
-//    [SerializeField] private RectTransform minimapPlayer;
+    [SerializeField] GameObject panelMissionCompleted;
+    [SerializeField] TextMeshProUGUI textMissionTime;
+    [SerializeField] TextMeshProUGUI textMissionMedal;
+    [SerializeField] Image imageMedal;
+
+    //    [SerializeField] private RectTransform minimapPlayer;
     private Rect rectFrame;
     private Player player;
     private int mapTextureHeight, mapTextureWidth;
@@ -18,6 +25,9 @@ public class UI : MonoBehaviour
     private int minimapPositionX, minimapPositionY;
     private float ratioTextureToMinimapX, ratioTextureToMinimapY;
     private bool showMap;
+    private float timeLeftDisplayMissionCompleted;
+
+    private float corner;
 
     public bool ShowMap { get => showMap; set => showMap = value; }
 
@@ -34,6 +44,7 @@ public class UI : MonoBehaviour
         rectFrame = new Rect(minimapPositionX - 8, minimapPositionY - 8, minimapWidth + 16, minimapHeight + 16);
         player = GameObject.Find("Player").GetComponent<Player>();
         imageMKey.transform.position = new Vector3(minimapPositionX - 45, imageMKey.transform.position.y, imageMKey.transform.position.z);
+        panelMissionCompleted.SetActive(false);
     }
 
     private Vector2 WorldToMapPosition(float x, float z)
@@ -54,19 +65,59 @@ public class UI : MonoBehaviour
             UpdateMiniMap();
         }
     }
+
+    void FixedUpdate()
+    {
+        if (timeLeftDisplayMissionCompleted > 0)
+        {
+            timeLeftDisplayMissionCompleted -= Time.deltaTime;
+            if (timeLeftDisplayMissionCompleted <= 0)
+            {
+                panelMissionCompleted.SetActive(false);
+            }
+        }
+    }
+
     private void UpdateMap()
     {
         GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), textureMap);
         Vector2 position = WorldToMapPosition(player.transform.position.x, player.transform.position.z);
-        GUI.DrawTexture(new Rect(Screen.width * (position.x / mapTextureWidth), Screen.height * (position.y / mapTextureHeight), 32, 32), texturePlayerPosition);
-        foreach (Mission mission in Game.Instance.Missions)
+        corner += Time.deltaTime;
+        if(corner > 360)
         {
-            if (!mission.Finished)
+            corner = 0;
+        }
+        Debug.Log(corner);
+        Matrix4x4 guiRotationMatrix = GUI.matrix; // set up for GUI rotation
+//        GUIUtility.RotateAroundPivot(-player.transform.eulerAngles.y + 90, new Vector2(16 + Screen.width * (position.x / mapTextureWidth), 16 + Screen.height * (position.y / mapTextureHeight)));
+        GUIUtility.RotateAroundPivot(-player.GetComponent<ThirdPersonController>().CinemachineTargetYaw + 90, new Vector2(16 + Screen.width * (position.x / mapTextureWidth), 16 + Screen.height * (position.y / mapTextureHeight)));
+        GUI.DrawTexture(new Rect(Screen.width * (position.x / mapTextureWidth), Screen.height * (position.y / mapTextureHeight), 32, 32), texturePlayerPosition);
+        GUI.matrix = guiRotationMatrix; //end GUI rotation
+        if (Game.Instance.ActiveMission != null)
+        {
+            position = WorldToMapPosition(Game.Instance.ActiveMission.CurrentDestination().x, Game.Instance.ActiveMission.CurrentDestination().y);
+            GUI.DrawTexture(new Rect(Screen.width * (position.x / mapTextureWidth), Screen.height * (position.y / mapTextureHeight), 32, 32), textureDestination);
+        }
+        else
+        {
+            foreach (Mission mission in Game.Instance.Missions)
             {
-                position = WorldToMapPosition(mission.StartLocation.x, mission.StartLocation.y);
-                GUI.DrawTexture(new Rect(Screen.width * (position.x / mapTextureWidth), Screen.height * (position.y / mapTextureHeight), 32, 32), textureMission);
+                if (!mission.HasFinished)
+                {
+                    position = WorldToMapPosition(mission.MissionGuy.transform.position.x, mission.MissionGuy.transform.position.z);
+                    GUI.DrawTexture(new Rect(Screen.width * (position.x / mapTextureWidth), Screen.height * (position.y / mapTextureHeight), 32, 32), textureMission);
+                }
             }
         }
+    }
+
+    public void DisplayMissionCompleted(string medalText, string missionTime)
+    {
+        panelMissionCompleted.SetActive(true);
+        textMissionMedal.text = medalText + " medal";
+        textMissionTime.text = "mission time: " + missionTime + "s ";
+        imageMedal.sprite = Resources.Load<Sprite>(medalText);
+        timeLeftDisplayMissionCompleted = 12;
     }
 
     private void UpdateMiniMap()
@@ -95,19 +146,31 @@ public class UI : MonoBehaviour
 //            minimapPlayer.position = new Vector3(minimapPositionX + position.x - lowerleftCornerMinimapInMapTextureX, position.y - lowerleftCornerMinimapInMapTextureY + minimapHeight, 0);
 //            minimapPlayer.rotation = Quaternion.Euler(0, 0, -player.transform.rotation.eulerAngles.y);
             Matrix4x4 guiRotationMatrix = GUI.matrix; // set up for GUI rotation
-            GUIUtility.RotateAroundPivot(-player.transform.eulerAngles.y + 90, new Vector2(12 + minimapPositionX + position.x - lowerleftCornerMinimapInMapTextureX, 12 + minimapPositionY + position.y - lowerleftCornerMinimapInMapTextureY + minimapHeight));
+            GUIUtility.RotateAroundPivot(-player.GetComponent<ThirdPersonController>().CinemachineTargetYaw + 90, new Vector2(12 + minimapPositionX + position.x - lowerleftCornerMinimapInMapTextureX, 12 + minimapPositionY + position.y - lowerleftCornerMinimapInMapTextureY + minimapHeight));
+//            GUIUtility.RotateAroundPivot(-player.transform.eulerAngles.y + 90, new Vector2(12 + minimapPositionX + position.x - lowerleftCornerMinimapInMapTextureX, 12 + minimapPositionY + position.y - lowerleftCornerMinimapInMapTextureY + minimapHeight));
             GUI.DrawTexture(new Rect(minimapPositionX + position.x - lowerleftCornerMinimapInMapTextureX, minimapPositionY + position.y - lowerleftCornerMinimapInMapTextureY + minimapHeight, 24, 24), texturePlayerPosition);
             GUI.matrix = guiRotationMatrix; //end GUI rotation    
         }
 
-        foreach (Mission mission in Game.Instance.Missions)
+        if (Game.Instance.ActiveMission != null)
         {
-            if (!mission.Finished)
+            position = WorldToMapPosition(Game.Instance.ActiveMission.CurrentDestination().x, Game.Instance.ActiveMission.CurrentDestination().y);
+            if (position.x > lowerleftCornerMinimapInMapTextureX && position.y > lowerleftCornerMinimapInMapTextureY - minimapHeight && position.x < lowerleftCornerMinimapInMapTextureX + minimapWidth - 20 && position.y < lowerleftCornerMinimapInMapTextureY - 20)
             {
-                position = WorldToMapPosition(mission.StartLocation.x, mission.StartLocation.y);
-                if (position.x > lowerleftCornerMinimapInMapTextureX && position.y > lowerleftCornerMinimapInMapTextureY - minimapHeight && position.x < lowerleftCornerMinimapInMapTextureX + minimapWidth - 20 && position.y < lowerleftCornerMinimapInMapTextureY - 20)
+                GUI.DrawTexture(new Rect(minimapPositionX + position.x - lowerleftCornerMinimapInMapTextureX, minimapPositionY + position.y - lowerleftCornerMinimapInMapTextureY + minimapHeight, 20, 20), textureDestination);
+            }
+        }
+        else
+        {
+            foreach (Mission mission in Game.Instance.Missions)
+            {
+                if (!mission.HasFinished)
                 {
-                    GUI.DrawTexture(new Rect(minimapPositionX + position.x - lowerleftCornerMinimapInMapTextureX, minimapPositionY + position.y - lowerleftCornerMinimapInMapTextureY + minimapHeight, 20, 20), textureMission);
+                    position = WorldToMapPosition(mission.MissionGuy.transform.position.x, mission.MissionGuy.transform.position.z);
+                    if (position.x > lowerleftCornerMinimapInMapTextureX && position.y > lowerleftCornerMinimapInMapTextureY - minimapHeight && position.x < lowerleftCornerMinimapInMapTextureX + minimapWidth - 20 && position.y < lowerleftCornerMinimapInMapTextureY - 20)
+                    {
+                        GUI.DrawTexture(new Rect(minimapPositionX + position.x - lowerleftCornerMinimapInMapTextureX, minimapPositionY + position.y - lowerleftCornerMinimapInMapTextureY + minimapHeight, 20, 20), textureMission);
+                    }
                 }
             }
         }

@@ -10,6 +10,7 @@ public class Cow : MonoBehaviour
     {
         animation = GetComponent<Animation>();
         animationDelay = Random.Range(0, 5f);
+        animation.Stop();
     }
 
     void FixedUpdate()

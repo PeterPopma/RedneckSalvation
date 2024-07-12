@@ -2497,9 +2497,9 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 2
+  m_Height: 1.88
   m_Radius: 0.18
-  m_SlopeLimit: 45
+  m_SlopeLimit: 70
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
@@ -2525,6 +2525,7 @@ MonoBehaviour:
   gunFirePistol: {fileID: 6560851128806018107}
   vfxFireGun: {fileID: 400000, guid: 4ecfa3d3919108f4fbff80d1c4d920a1, type: 3}
   pistol: {fileID: 8113070393445269543}
+  aggresiveness: 0.5
 --- !u!136 &2574238222895686167
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -2545,9 +2546,9 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.19
-  m_Height: 1.47
+  m_Height: 1.9
   m_Direction: 1
-  m_Center: {x: 0, y: 1.18, z: 0}
+  m_Center: {x: 0, y: 0.93, z: 0}
 --- !u!1 &7073164530755969281
 GameObject:
   m_ObjectHideFlags: 0

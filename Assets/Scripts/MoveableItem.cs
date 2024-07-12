@@ -6,8 +6,10 @@ public class MoveableItem : MonoBehaviour
     [SerializeField] GameObject playerHand;
     Rigidbody rigidbody;
     float timeLeftThrowing;
+    bool disabled;
 
     public float TimeLeftThrowing { get => timeLeftThrowing; set => timeLeftThrowing = value; }
+    public bool Disabled { get => disabled; set => disabled = value; }
 
     private void Start()
     {
@@ -25,7 +27,7 @@ public class MoveableItem : MonoBehaviour
 
     private void OnTriggerEnter(Collider collider)
     {
-        if (player.ObjectInHand==null && collider.GetComponent<Player>()!=null && timeLeftThrowing<=0)
+        if (!Disabled && player.ObjectInHand==null && collider.GetComponent<Player>()!=null && timeLeftThrowing<=0)
         {
             player.PutObjectInHand(gameObject);
             rigidbody.isKinematic = true;

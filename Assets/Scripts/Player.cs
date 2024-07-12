@@ -4,6 +4,7 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Player : MonoBehaviour
@@ -11,6 +12,7 @@ public class Player : MonoBehaviour
     const int WEAPON_PUNCH = 0, WEAPON_PISTOL = 1, WEAPON_RIFLE = 2, WEAPON_DYNAMITE = 3;
     const int LAYER_RIDE = 1, LAYER_SHOOT = 2, LAYER_PUNCH = 3, LAYER_HOLDRIFLE = 4, LAYER_FIRERIFLE = 5, LAYER_THROW = 6;
 
+    [SerializeField] private GameObject effectsParent;
     [SerializeField] ParticleSystem particleSystem;
     [SerializeField] private LayerMask aimColliderLayerMask;
     [SerializeField] private Transform vfxFireGun;
@@ -32,6 +34,7 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject dynamite;
     [SerializeField] private GameObject pfDynamite;
     [SerializeField] private GameObject panelMap;
+    [SerializeField] private GameObject playerSpawnPoint;
     //    [SerializeField] private GameObject hitIndicator;
     //    [SerializeField] private Material matIndicator1;
     //    [SerializeField] private Material matIndicator2;
@@ -113,10 +116,7 @@ public class Player : MonoBehaviour
         imageUnmount.SetActive(false);
         imageRelease.SetActive(false);
         particleSystem.Stop();
-
         activeWeapon = WEAPON_PISTOL;
-        rigPistol.weight = 1;
-        rigRifle.weight = 0;
         pistol.SetActive(true);
         imageIconWeapon.GetComponent<Image>().sprite = Resources.Load<Sprite>("icon_pistol");
         UIScript = GameObject.Find("/Scripts/UI").GetComponent<UI>();
@@ -155,6 +155,11 @@ public class Player : MonoBehaviour
     {
         this.objectInHand = objectInHand;
         imageRelease.SetActive(true);
+        if (objectInHand.name == "safe" && Game.Instance.Missions.Find(o => o.Name == "bank").IsActive)
+        {
+            Game.Instance.Missions.Find(o => o.Name == "bank").NextDestination();
+            Game.Instance.DisplayMission("Good! Now bring the safe to the Saloon on the hill above St Dutch.");
+        }
     }
 
     // Update is called once per frame
@@ -163,6 +168,11 @@ public class Player : MonoBehaviour
         if (timeLeftDying > 0)
         {
             timeLeftDying -= Time.deltaTime;
+            if(timeLeftDying <= 0)
+            {
+                SceneManager.UnloadSceneAsync("MainScene");
+                SceneManager.LoadSceneAsync("MenuScene");
+            }
         }
         if (timeLeftExploded > 0)
         {
@@ -230,7 +240,8 @@ public class Player : MonoBehaviour
             if (timeLeftShooting < 0.6 && !smokeCreated)
             {
                 smokeCreated = true;
-                Instantiate(vfxFireGun, handPosition.transform.position, Quaternion.identity);
+                Transform newEffect = Instantiate(vfxFireGun, handPosition.transform.position, Quaternion.identity);
+                newEffect.parent = effectsParent.transform;
                 if (activeWeapon == WEAPON_PISTOL)
                 {
                     gunFirePistol.SetActive(true);
@@ -268,6 +279,24 @@ public class Player : MonoBehaviour
 
         HandleAiming();
         HandleShooting();
+    }
+
+    public void FixedUpdate()
+    {
+        if (transform.position.y < -50)
+        {
+            transform.position = playerSpawnPoint.transform.position;
+        }
+    }
+
+    public void IncreaseHealth(int amount)
+    {
+        health += amount;
+        if (health > 100)
+        {
+            health = 100;
+        }
+        sliderHealthBar.value = 1 - (health / 100f);
     }
 
     public void HandleNPCHit()
@@ -321,7 +350,7 @@ public class Player : MonoBehaviour
 
     private void HandleAiming()
     {
-        if (isAiming)
+        if (isAiming && vcamRagdoll.enabled == false)
         {
             rigBuilder.layers[0].active = true;
             rigBuilder.layers[1].active = true;
@@ -336,9 +365,20 @@ public class Player : MonoBehaviour
 
             // Move the aim target
             aimPoint.transform.position = hitPosition;
+
+            if (activeWeapon == WEAPON_PISTOL)
+            {
+                rigPistol.weight = 1;
+            }
+            if (activeWeapon == WEAPON_RIFLE)
+            {
+                rigRifle.weight = 1;
+            }
         }
         else
         {
+            rigPistol.weight = 0;
+            rigRifle.weight = 0; 
             rigBuilder.layers[0].active = false;
             rigBuilder.layers[1].active = false;
             vcamAim.enabled = false;
@@ -348,13 +388,18 @@ public class Player : MonoBehaviour
 
     public void SetRidingHorse(bool isRiding)
     {
+        if (isRiding == false && Horse == null)
+        {
+            // nothing to do..
+            return;
+        }
         imageUnmount.SetActive(isRiding);
         vcamHorse.enabled = isRiding;
         gameObject.GetComponent<ThirdPersonController>().IsRidingHorse = isRiding;
         if (isRiding)
         {
-            transform.position = new Vector3(transform.position.x, transform.position.y + 2, transform.position.z);  
-            gameObject.GetComponent<CharacterController>().center = new Vector3(0, -1.2f, 0);
+            transform.position = new Vector3(transform.position.x, transform.position.y + 1, transform.position.z);  
+            gameObject.GetComponent<CharacterController>().center = new Vector3(0, -0.5f, 0);
             gameObject.GetComponent<ThirdPersonController>().MoveSpeed = 12;
             gameObject.GetComponent<ThirdPersonController>().SprintSpeed = 24;
             animator.SetLayerWeight(LAYER_RIDE, 1);
@@ -363,7 +408,7 @@ public class Player : MonoBehaviour
         {
             Horse.StopRidingHorse();
             Horse = null;
-            transform.position = new Vector3(transform.position.x, transform.position.y - 2, transform.position.z);
+            transform.position = new Vector3(transform.position.x, transform.position.y - 1, transform.position.z);
             gameObject.GetComponent<CharacterController>().center = new Vector3(0, 1.83f, 0);
             gameObject.GetComponent<ThirdPersonController>().MoveSpeed = 6;
             gameObject.GetComponent<ThirdPersonController>().SprintSpeed = 12;
@@ -373,10 +418,7 @@ public class Player : MonoBehaviour
 
     private void OnUnmount()
     {
-        if (Horse != null)
-        {
-            SetRidingHorse(false);
-        }
+        SetRidingHorse(false);
     }
 
     private void OnRelease()
@@ -391,6 +433,15 @@ public class Player : MonoBehaviour
             objectInHand.GetComponent<Rigidbody>().AddTorque(Random.insideUnitSphere * 5, ForceMode.VelocityChange);
             objectInHand = null;
         }
+    }
+
+    public void ReleaseSafe()
+    {
+        imageRelease.SetActive(false);
+        objectInHand.transform.parent = null;
+        objectInHand.GetComponent<Rigidbody>().isKinematic = false;
+        objectInHand.GetComponent<MoveableItem>().Disabled = true;
+        objectInHand = null;
     }
 
     private void OnShoot()
@@ -452,6 +503,7 @@ public class Player : MonoBehaviour
 
     public void Explode(int strength = 80)
     {
+        SetRidingHorse(false);
         vcamRagdoll.enabled = true;
         characterController.enabled = false;
         animator.enabled = false;
@@ -474,22 +526,16 @@ public class Player : MonoBehaviour
         }
         if (activeWeapon == WEAPON_PUNCH)
         {
-            rigPistol.weight = 0;
-            rigRifle.weight = 0;
             dynamite.SetActive(false);
             imageIconWeapon.GetComponent<Image>().sprite = Resources.Load<Sprite>("icon_fist");
         }
         if (activeWeapon == WEAPON_PISTOL)
         {
-            rigPistol.weight = 1;
-            rigRifle.weight = 0;
             pistol.SetActive(true);
             imageIconWeapon.GetComponent<Image>().sprite = Resources.Load<Sprite>("icon_pistol");
         }
         if (activeWeapon == WEAPON_RIFLE)
         {
-            rigPistol.weight = 0;
-            rigRifle.weight = 1;
             pistol.SetActive(false);
             rifle.SetActive(true);
             imageIconWeapon.GetComponent<Image>().sprite = Resources.Load<Sprite>("icon_rifle");

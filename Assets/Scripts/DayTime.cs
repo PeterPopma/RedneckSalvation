@@ -18,6 +18,7 @@ public class DayTime : MonoBehaviour
     float minuteOfDay;
     bool isNight;
     bool lightsOn;
+    float elevation;
 
     private void Start()
     {
@@ -40,7 +41,7 @@ public class DayTime : MonoBehaviour
         }
         textDayTime.text = hours.ToString("00") + ":" + (minuteOfDay % 60).ToString("00");
         sun.transform.rotation = Quaternion.Euler(0, minuteOfDay / (float)MINUTES_PER_DAY * 360, 0);
-        float elevation = ((720 - Mathf.Abs((MINUTES_PER_DAY / 2) - minuteOfDay)) * 0.083f) - 10; // 720..0..720  -> 0..720..0  -> 0..60..0  -> -10..50..-10 
+        elevation = ((720 - Mathf.Abs((MINUTES_PER_DAY / 2) - minuteOfDay)) * 0.083f) - 5; // 720..0..720  -> 0..720..0  -> 0..60..0  -> -5..55..-5
         sun.transform.Rotate(new Vector3(elevation, 0, 0));
         if (elevation < 0 && !isNight)
         {
@@ -85,7 +86,7 @@ public class DayTime : MonoBehaviour
             else
             {
                 env.skyType.value = Convert.ToInt32(SkyType.PhysicallyBased);
-                sun.intensity = 400000;
+                sun.intensity = 450000;
             }
         }
     }

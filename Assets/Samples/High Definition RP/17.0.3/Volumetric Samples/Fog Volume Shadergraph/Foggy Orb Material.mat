@@ -24,8 +24,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Foggy Orb Material
-  m_Shader: {fileID: -6465566751694194690, guid: f7be2a74e19f07d4c91a20d2d70ccc2b,
-    type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: f7be2a74e19f07d4c91a20d2d70ccc2b, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -36,7 +35,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
-  m_LockedProperties: _FogVolumeSingleScatteringAlbedo
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -87,7 +86,7 @@ Material:
     - _FogVolumeColorBlendOp: 0
     - _FogVolumeDstAlphaBlend: 1
     - _FogVolumeDstColorBlend: 1
-    - _FogVolumeFogDistanceProperty: 0.47
+    - _FogVolumeFogDistanceProperty: 2
     - _FogVolumeSrcAlphaBlend: 1
     - _FogVolumeSrcColorBlend: 1
     - _Intensity: 10
@@ -125,4 +124,3 @@ Material:
     - _RotationAxis: {r: 0, g: 1, b: 0, a: 0}
     - _Rotation_Axis: {r: 0, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []
-  m_AllowLocking: 1
