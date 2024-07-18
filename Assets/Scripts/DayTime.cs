@@ -20,6 +20,9 @@ public class DayTime : MonoBehaviour
     bool lightsOn;
     float elevation;
 
+    public bool IsNight { get => isNight; set => isNight = value; }
+    public float Elevation { get => elevation; set => elevation = value; }
+
     private void Start()
     {
         minuteOfDay = MINUTES_PER_DAY / 2;

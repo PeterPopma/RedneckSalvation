@@ -172,6 +172,7 @@ public class Player : MonoBehaviour
             {
                 SceneManager.UnloadSceneAsync("MainScene");
                 SceneManager.LoadSceneAsync("MenuScene");
+                Cursor.visible = true;
             }
         }
         if (timeLeftExploded > 0)
@@ -400,8 +401,8 @@ public class Player : MonoBehaviour
         {
             transform.position = new Vector3(transform.position.x, transform.position.y + 1, transform.position.z);  
             gameObject.GetComponent<CharacterController>().center = new Vector3(0, -0.5f, 0);
-            gameObject.GetComponent<ThirdPersonController>().MoveSpeed = 12;
-            gameObject.GetComponent<ThirdPersonController>().SprintSpeed = 24;
+            gameObject.GetComponent<ThirdPersonController>().MoveSpeed = 16;
+            gameObject.GetComponent<ThirdPersonController>().SprintSpeed = 32;
             animator.SetLayerWeight(LAYER_RIDE, 1);
         }
         else
@@ -410,8 +411,8 @@ public class Player : MonoBehaviour
             Horse = null;
             transform.position = new Vector3(transform.position.x, transform.position.y - 1, transform.position.z);
             gameObject.GetComponent<CharacterController>().center = new Vector3(0, 1.83f, 0);
-            gameObject.GetComponent<ThirdPersonController>().MoveSpeed = 6;
-            gameObject.GetComponent<ThirdPersonController>().SprintSpeed = 12;
+            gameObject.GetComponent<ThirdPersonController>().MoveSpeed = 8;
+            gameObject.GetComponent<ThirdPersonController>().SprintSpeed = 16;
             animator.SetLayerWeight(LAYER_RIDE, 0);
         }
     }

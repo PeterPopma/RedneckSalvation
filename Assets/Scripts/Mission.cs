@@ -56,7 +56,9 @@ public class Mission : MonoBehaviour
 
                 UI ui = GameObject.Find("Scripts/UI").GetComponent<UI>();
                 ui.DisplayMissionCompleted(medalText, totalTime.ToString("0"));
+                Game.Instance.ActiveMission.HasFinished = true;
                 Game.Instance.ActiveMission = null;
+                missionGuy.SetActive(false);
             }
         }
     }

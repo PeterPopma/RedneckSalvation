@@ -49,9 +49,9 @@ public class UI : MonoBehaviour
 
     private Vector2 WorldToMapPosition(float x, float z)
     {
-        // 0,0..1022,833 <->  240,1677..2357,4217
+        // 0, 0 .. 1022, 833 <->  395, 1751 .. 2106, 4011
         // note that the map uses world Z as X-axis and world X as Y-axis
-        return new Vector2((float)(1022f * (z - 1677) / 2540.0), (float)(833f * (1-((x-240)/2117.0))));
+        return new Vector2((float)(1022f - (1022f * (z - 1751) / 2260f)), (float)(833f * (1 - ((x - 395) / 1711f))));
     }
 
     void OnGUI()
@@ -90,7 +90,7 @@ public class UI : MonoBehaviour
         Debug.Log(corner);
         Matrix4x4 guiRotationMatrix = GUI.matrix; // set up for GUI rotation
 //        GUIUtility.RotateAroundPivot(-player.transform.eulerAngles.y + 90, new Vector2(16 + Screen.width * (position.x / mapTextureWidth), 16 + Screen.height * (position.y / mapTextureHeight)));
-        GUIUtility.RotateAroundPivot(-player.GetComponent<ThirdPersonController>().CinemachineTargetYaw + 90, new Vector2(16 + Screen.width * (position.x / mapTextureWidth), 16 + Screen.height * (position.y / mapTextureHeight)));
+        GUIUtility.RotateAroundPivot(player.GetComponent<ThirdPersonController>().CinemachineTargetYaw - 90, new Vector2(16 + Screen.width * (position.x / mapTextureWidth), 16 + Screen.height * (position.y / mapTextureHeight)));
         GUI.DrawTexture(new Rect(Screen.width * (position.x / mapTextureWidth), Screen.height * (position.y / mapTextureHeight), 32, 32), texturePlayerPosition);
         GUI.matrix = guiRotationMatrix; //end GUI rotation
         if (Game.Instance.ActiveMission != null)
@@ -146,7 +146,7 @@ public class UI : MonoBehaviour
 //            minimapPlayer.position = new Vector3(minimapPositionX + position.x - lowerleftCornerMinimapInMapTextureX, position.y - lowerleftCornerMinimapInMapTextureY + minimapHeight, 0);
 //            minimapPlayer.rotation = Quaternion.Euler(0, 0, -player.transform.rotation.eulerAngles.y);
             Matrix4x4 guiRotationMatrix = GUI.matrix; // set up for GUI rotation
-            GUIUtility.RotateAroundPivot(-player.GetComponent<ThirdPersonController>().CinemachineTargetYaw + 90, new Vector2(12 + minimapPositionX + position.x - lowerleftCornerMinimapInMapTextureX, 12 + minimapPositionY + position.y - lowerleftCornerMinimapInMapTextureY + minimapHeight));
+            GUIUtility.RotateAroundPivot(player.GetComponent<ThirdPersonController>().CinemachineTargetYaw - 90, new Vector2(12 + minimapPositionX + position.x - lowerleftCornerMinimapInMapTextureX, 12 + minimapPositionY + position.y - lowerleftCornerMinimapInMapTextureY + minimapHeight));
 //            GUIUtility.RotateAroundPivot(-player.transform.eulerAngles.y + 90, new Vector2(12 + minimapPositionX + position.x - lowerleftCornerMinimapInMapTextureX, 12 + minimapPositionY + position.y - lowerleftCornerMinimapInMapTextureY + minimapHeight));
             GUI.DrawTexture(new Rect(minimapPositionX + position.x - lowerleftCornerMinimapInMapTextureX, minimapPositionY + position.y - lowerleftCornerMinimapInMapTextureY + minimapHeight, 24, 24), texturePlayerPosition);
             GUI.matrix = guiRotationMatrix; //end GUI rotation    
