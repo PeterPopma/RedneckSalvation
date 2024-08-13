@@ -3,7 +3,7 @@ using UnityEngine;
 public class Cow : MonoBehaviour
 {
     bool animationStarted;
-    Animation animation;
+    new Animation animation;
     float animationDelay;
 
     private void Start()

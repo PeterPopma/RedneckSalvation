@@ -4,7 +4,7 @@ public class MoveableItem : MonoBehaviour
 {
     Player player;
     [SerializeField] GameObject playerHand;
-    Rigidbody rigidbody;
+    new Rigidbody rigidbody;
     float timeLeftThrowing;
     bool disabled;
 

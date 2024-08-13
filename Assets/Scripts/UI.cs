@@ -9,10 +9,11 @@ public class UI : MonoBehaviour
     [SerializeField] Texture2D texturePlayerPosition;
     [SerializeField] Texture2D textureMission;
     [SerializeField] Texture2D textureDestination;
-    [SerializeField] GameObject imageMKey;
     [SerializeField] private RectTransform minimapDotBlue;
     [SerializeField] private Shader blendShader;
-    [SerializeField] GameObject panelMissionCompleted;
+    [SerializeField] GameObject canvasMissionCompleted;
+    [SerializeField] GameObject canvasAchievements;
+    [SerializeField] GameObject canvasHelp;
     [SerializeField] TextMeshProUGUI textMissionTime;
     [SerializeField] TextMeshProUGUI textMissionMedal;
     [SerializeField] Image imageMedal;
@@ -25,6 +26,8 @@ public class UI : MonoBehaviour
     private int minimapPositionX, minimapPositionY;
     private float ratioTextureToMinimapX, ratioTextureToMinimapY;
     private bool showMap;
+    private bool showAchievements;
+    private bool showHelp;
     private float timeLeftDisplayMissionCompleted;
 
     private float corner;
@@ -43,8 +46,9 @@ public class UI : MonoBehaviour
         ratioTextureToMinimapY = minimapHeight / (float)textureMap.height;
         rectFrame = new Rect(minimapPositionX - 8, minimapPositionY - 8, minimapWidth + 16, minimapHeight + 16);
         player = GameObject.Find("Player").GetComponent<Player>();
-        imageMKey.transform.position = new Vector3(minimapPositionX - 45, imageMKey.transform.position.y, imageMKey.transform.position.z);
-        panelMissionCompleted.SetActive(false);
+        canvasMissionCompleted.SetActive(false);
+        canvasAchievements.SetActive(false);
+        canvasHelp.SetActive(false);
     }
 
     private Vector2 WorldToMapPosition(float x, float z)
@@ -60,7 +64,7 @@ public class UI : MonoBehaviour
         {
             UpdateMap();
         }
-        else
+        else if (Game.Instance.ShowMiniMap && !showAchievements && !showHelp)
         {
             UpdateMiniMap();
         }
@@ -73,7 +77,7 @@ public class UI : MonoBehaviour
             timeLeftDisplayMissionCompleted -= Time.deltaTime;
             if (timeLeftDisplayMissionCompleted <= 0)
             {
-                panelMissionCompleted.SetActive(false);
+                canvasMissionCompleted.SetActive(false);
             }
         }
     }
@@ -87,7 +91,6 @@ public class UI : MonoBehaviour
         {
             corner = 0;
         }
-        Debug.Log(corner);
         Matrix4x4 guiRotationMatrix = GUI.matrix; // set up for GUI rotation
 //        GUIUtility.RotateAroundPivot(-player.transform.eulerAngles.y + 90, new Vector2(16 + Screen.width * (position.x / mapTextureWidth), 16 + Screen.height * (position.y / mapTextureHeight)));
         GUIUtility.RotateAroundPivot(player.GetComponent<ThirdPersonController>().CinemachineTargetYaw - 90, new Vector2(16 + Screen.width * (position.x / mapTextureWidth), 16 + Screen.height * (position.y / mapTextureHeight)));
@@ -113,11 +116,27 @@ public class UI : MonoBehaviour
 
     public void DisplayMissionCompleted(string medalText, string missionTime)
     {
-        panelMissionCompleted.SetActive(true);
+        canvasMissionCompleted.SetActive(true);
         textMissionMedal.text = medalText + " medal";
         textMissionTime.text = "mission time: " + missionTime + "s ";
         imageMedal.sprite = Resources.Load<Sprite>(medalText);
         timeLeftDisplayMissionCompleted = 12;
+    }
+
+    public void ToggleAchievementsScreen()
+    {
+        showAchievements = !showAchievements;
+        if (showAchievements)
+        {
+            Progress.Instance.UpdateProgressScreen();
+        }
+        canvasAchievements.SetActive(showAchievements);
+    }
+
+    public void ToggleHelpScreen()
+    {
+        showHelp = !showHelp;
+        canvasHelp.SetActive(showHelp);
     }
 
     private void UpdateMiniMap()

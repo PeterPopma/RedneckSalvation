@@ -2,35 +2,14 @@ using UnityEngine;
 
 public class Swing : MonoBehaviour
 {
-    float currentAngle;
-    bool angleIncreasing;
-    [SerializeField] float speed;
-    [SerializeField] float maxAngle;
-
-    private void Start()
-    {
-        currentAngle = -maxAngle + (2 * maxAngle * Random.value);
-        angleIncreasing = Random.value < 0.5f;
-    }
+    [SerializeField] float offset;
+    [SerializeField] float speedX;
+    [SerializeField] float maxAngleX;
+    [SerializeField] float speedZ;
+    [SerializeField] float maxAngleZ;
 
     void Update()
     {
-        if (angleIncreasing)
-        {
-            currentAngle += speed * Time.deltaTime;
-            if (currentAngle > maxAngle)
-            {
-                angleIncreasing = false;
-            }
-        }
-        else
-        {
-            currentAngle -= speed * Time.deltaTime;
-            if (currentAngle < -maxAngle)
-            {
-                angleIncreasing = true;
-            }
-        }
-        transform.rotation = Quaternion.Euler(-90 + currentAngle, 0, 0);
+        transform.rotation = Quaternion.Euler(offset + maxAngleX * Mathf.Cos(speedX * Time.time), 0, maxAngleZ * Mathf.Sin(speedZ * Time.time));
     }
 }

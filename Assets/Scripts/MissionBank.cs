@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class MissionBank : Mission
 {
-    protected void Awake()
+    protected override void Awake()
     {
         base.Awake();
         Name = "bank";
@@ -14,19 +14,36 @@ public class MissionBank : Mission
         maxTimeSilver = 240;
     }
 
-    protected void Start()
+    protected override void Start()
     {
         base.Start();
     }
 
-    protected void Update()
+    protected override void Update()
     {
         base.Update();
     }
 
-    protected void FixedUpdate()
+    protected override void FixedUpdate()
     {
         base.FixedUpdate();
+
+        if (Game.Instance.ActiveMission != null && Game.Instance.ActiveMission.Name == "bank")
+        {
+            Collider[] colliders = Physics.OverlapSphere(transform.position, 3.0f);
+
+            foreach (Collider collider in colliders)
+            {
+                if (collider.gameObject.GetComponent<Player>() != null)
+                {
+                    if (collider.gameObject.GetComponent<Player>().ObjectInHand != null && collider.gameObject.GetComponent<Player>().ObjectInHand.name == "safe")
+                    {
+                        collider.gameObject.GetComponent<Player>().ReleaseSafe();
+                        Game.Instance.DisplayMission("Thanks! Could you throw down a dynamite to blow up the safe?");
+                    }
+                }
+            }
+        }
     }
 
 }

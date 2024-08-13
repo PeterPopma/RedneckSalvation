@@ -9,7 +9,7 @@ public class MissionOBiscuit : Mission
     [SerializeField] List<GameObject> patrolDestinations;
     int gangMembersLeft = 7;
 
-    protected void Awake()
+    protected override void Awake()
     {
         base.Awake();
         Name = "obiscuit";
@@ -27,8 +27,8 @@ public class MissionOBiscuit : Mission
             int countOBiscuits = 0;
             foreach (GameObject patrolOrigin in patrolOrigins)
             {
-                Vector3 spawnLocation = new Vector3(patrolOrigin.transform.position.x - 45 + Random.value * 90f, 1000, patrolOrigin.transform.position.z - 45 + Random.value * 90f);
-                float y = Terrain.activeTerrain.SampleHeight(spawnLocation);
+                Vector3 spawnLocation = new(patrolOrigin.transform.position.x - 45 + Random.value * 90f, 1000, patrolOrigin.transform.position.z - 45 + Random.value * 90f);
+                float y = Game.Instance.MainTerrain.SampleHeight(spawnLocation);
                 spawnLocation = new Vector3(spawnLocation.x, y, spawnLocation.z);
                 GameObject newOBiscuit = Instantiate(pfOBiscuit, spawnLocation, Quaternion.identity);
                 newOBiscuit.name = "OBiscuit" + (countOBiscuits+1);
@@ -55,17 +55,17 @@ public class MissionOBiscuit : Mission
         }
     }
 
-    protected void Start()
+    protected override void Start()
     {
         base.Start();
     }
 
-    protected void Update()
+    protected override void Update()
     {
         base.Update();
     }
 
-    protected void FixedUpdate()
+    protected override void FixedUpdate()
     {
         base.FixedUpdate();
     }

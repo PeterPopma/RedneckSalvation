@@ -45,7 +45,7 @@
                     "name": "Shoot",
                     "type": "Button",
                     "id": "a23edaed-4fb4-4184-8da3-e0e380091b2b",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -63,7 +63,7 @@
                     "name": "WeaponSelect",
                     "type": "Button",
                     "id": "6e3f15db-0e37-487a-8f88-f435ca4f4813",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -90,6 +90,51 @@
                     "name": "Release",
                     "type": "Button",
                     "id": "3abdd01d-2a53-4207-a075-db7adccb8f73",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ProgressScreen",
+                    "type": "Button",
+                    "id": "09219c70-7b09-4dad-b3a4-f9d723eee47b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleMiniMap",
+                    "type": "Button",
+                    "id": "910b0fec-7913-4f25-b26e-0ced3cd2dded",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ChangeView",
+                    "type": "Button",
+                    "id": "1aa8894f-2230-456a-97fc-ef16bddd11c3",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "ToggleSuperSpeed",
+                    "type": "Button",
+                    "id": "a286c940-d23a-4320-a26c-f0fa7fa37ecd",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Help",
+                    "type": "Button",
+                    "id": "031797f7-993a-4ee4-80cb-6474c5168c6c",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -298,7 +343,7 @@
                 {
                     "name": "",
                     "id": "c3a86f00-ebc2-4754-b5f7-dafccb8ecd60",
-                    "path": "<Keyboard>/p",
+                    "path": "<Keyboard>/tab",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -336,6 +381,61 @@
                     "processors": "",
                     "groups": "",
                     "action": "Release",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "825397a7-3afc-4254-bf8d-ebf9c2eddf72",
+                    "path": "<Keyboard>/f2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleMiniMap",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8a99c911-d9bf-4ea1-9f46-5998653d7f49",
+                    "path": "<Keyboard>/f3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChangeView",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2a99c396-cf3f-44da-ac88-61b9438d841a",
+                    "path": "<Keyboard>/f4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleSuperSpeed",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d9155d92-9fad-4adb-ae4a-d6e33233bcb4",
+                    "path": "<Keyboard>/f1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ProgressScreen",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e9d1c2f1-dd9c-4025-a173-67b6a15d3250",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Help",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

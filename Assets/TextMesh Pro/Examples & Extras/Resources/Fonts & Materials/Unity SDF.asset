@@ -177,8 +177,8 @@ Material:
     - _IsoPerimeter: {r: 0, g: 0.1, b: 0.2, a: 0.3}
     - _MaskCoord: {r: 0, g: 0, b: 32767, a: 32767}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
-    - _OutlineColor1: {r: 0, g: 1, b: 1, a: 1}
-    - _OutlineColor2: {r: 0.009433985, g: 0.02534519, b: 1, a: 1}
+    - _OutlineColor1: {r: 0, g: 0, b: 0, a: 1}
+    - _OutlineColor2: {r: 1, g: 1, b: 1, a: 1}
     - _OutlineColor3: {r: 0, g: 0, b: 0, a: 1}
     - _OutlineOffset1: {r: 0, g: 0, b: 0, a: 0}
     - _OutlineOffset2: {r: 0, g: 0, b: 0, a: 0}

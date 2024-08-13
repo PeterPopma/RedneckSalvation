@@ -7,7 +7,6 @@ public class CameraShake : MonoBehaviour
 {
     public static CameraShake Instance { get; private set; }
 
-    private CinemachineFreeLook cinemachineFreeLook;
     private CinemachineBasicMultiChannelPerlin cinemachineBasicMultiChannelPerlin;
     private float slowdownRate;
 
@@ -15,7 +14,6 @@ public class CameraShake : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        cinemachineFreeLook = GetComponent<CinemachineFreeLook>();
         //        cinemachineBasicMultiChannelPerlin = cinemachineFreeLook.GetRig(1).GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
         cinemachineBasicMultiChannelPerlin = GetComponent<CinemachineBasicMultiChannelPerlin>();
     }

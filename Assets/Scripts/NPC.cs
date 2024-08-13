@@ -21,7 +21,7 @@ public class NPC : MonoBehaviour
     [SerializeField] bool useRagdoll;
     [SerializeField] NPCState_ initialState = NPCState_.WalkingAround;
     [SerializeField] private Transform hips;
-    [SerializeField] private Rigidbody rigidbody;
+    [SerializeField] private new Rigidbody rigidbody;
     [SerializeField] private GameObject handPosition;
     [SerializeField] private GameObject gunFirePistol;
     [SerializeField] private Transform vfxFireGun;
@@ -47,7 +47,7 @@ public class NPC : MonoBehaviour
     private float timeLeftExploded;
     private float playerLowerValue;
     private Vector2 destination;
-    private List<Vector2> patrolRallyPoints = new List<Vector2>();
+    private readonly List<Vector2> patrolRallyPoints = new();
     private int currentRallyPointIndex;
     private bool hasDied;
     private int timesHit;
@@ -160,11 +160,12 @@ public class NPC : MonoBehaviour
             timeLeftExploded -= Time.deltaTime;
             if (timeLeftExploded < 0)
             {
-                float y = Terrain.activeTerrain.SampleHeight(hips.position);
-                if (hips.position.y - y > 1)
+                float y = Game.Instance.MainTerrain.SampleHeight(hips.position);
+                if (timesStuck < 10 && hips.position.y - y > 1)
                 {
                     // not on the ground yet
                     timeLeftExploded = 2f;
+                    timesStuck++;     // prevent getting stuck when there is something wrong with sampling the terrain height
                 }
                 else
                 {
@@ -202,7 +203,7 @@ public class NPC : MonoBehaviour
         else if (pistolActive)
         {
             Vector3 directionPlayer = player.transform.position - transform.position;
-            if (directionPlayer.magnitude < 20)
+            if (directionPlayer.sqrMagnitude < 400)
             {
                 npcState = NPCState_.StandingStill;
                 animator.SetFloat(animIDSpeed, 0);
@@ -221,7 +222,7 @@ public class NPC : MonoBehaviour
             }
         }
 
-        if (!characterController.isGrounded /*&& npcState!=NPCState_.Falling*/)
+        if (!characterController.isGrounded && characterController.enabled /*&& npcState!=NPCState_.Falling*/)
         {
             // make sure characters stay on the ground
             characterController.Move(new Vector3(0.0f, -2f * Time.deltaTime, 0.0f));
@@ -253,18 +254,18 @@ public class NPC : MonoBehaviour
     private void FollowPlayer()
     {
         Vector3 distanceToPlayer = player.transform.position - transform.position;
-        if (distanceToPlayer.magnitude > 1.1f)
+        if (distanceToPlayer.sqrMagnitude > 1.21f)
         {
             if (currentSpeed < 4)
             {
                 currentSpeed += Time.deltaTime * 8f;   
             }
             distanceToPlayer.Normalize();
-            Vector3 direction = new Vector3(distanceToPlayer.x, 0, distanceToPlayer.z);
-            Vector3 newDirection = new Vector3(Mathf.Lerp(transform.forward.x, direction.x, Time.deltaTime * 4f), 0, Mathf.Lerp(transform.forward.z, direction.z, Time.deltaTime * 4f));
+            Vector3 direction = new(distanceToPlayer.x, 0, distanceToPlayer.z);
+            Vector3 newDirection = new(Mathf.Lerp(transform.forward.x, direction.x, Time.deltaTime * 4f), 0, Mathf.Lerp(transform.forward.z, direction.z, Time.deltaTime * 4f));
 
             transform.rotation = Quaternion.LookRotation(newDirection, Vector3.up);
-            characterController.Move(newDirection * Time.deltaTime * 2 * MOVE_SPEED);
+            characterController.Move(2 * MOVE_SPEED * Time.deltaTime * newDirection);
         }
         else
         {
@@ -308,7 +309,7 @@ public class NPC : MonoBehaviour
         }
     }
 
-    public void Hit(Vector3 hitPosition, Vector3 playerPosition)
+    public void Hit(Vector3 hitPosition)
     {
         if (hasDied)
         {
@@ -318,7 +319,7 @@ public class NPC : MonoBehaviour
         timesHit++;
 
         // look at player
-        Vector3 direction = playerPosition - transform.position;
+        Vector3 direction = hitPosition - transform.position;
         transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
 
         if (timesHit > 2)
@@ -348,6 +349,7 @@ public class NPC : MonoBehaviour
     public void Die()
     {
         hasDied = true;
+        Progress.Instance.Kills++;
         positionBeforeDying = transform.position;
         timeLeftDying = TIME_BEFORE_DYING_PLAYER_IS_REMOVED;
         layer = Random.Range(1, 4);
@@ -390,7 +392,7 @@ public class NPC : MonoBehaviour
         if (npcState != NPCState_.Patrol && Time.time - timeLastDistanceMeasurement > 5)
         {
             timeLastDistanceMeasurement = Time.time;
-            if ((storedPosition - transform.position).magnitude < 0.1f)
+            if ((storedPosition - transform.position).sqrMagnitude < 0.01f)
             {
                 // stuck..
                 timesStuck++;
@@ -409,13 +411,16 @@ public class NPC : MonoBehaviour
         if (destination != Vector2.zero)
         {
             Vector2 distanceToDestination = destination - new Vector2(transform.position.x, transform.position.z);
-            if (distanceToDestination.magnitude > 0.1f)
+            if (distanceToDestination.sqrMagnitude > 0.01f)
             {
                 animator.SetFloat(animIDSpeed, 5f);
                 distanceToDestination.Normalize();
-                Vector3 direction = new Vector3(distanceToDestination.x, 0, distanceToDestination.y);
+                Vector3 direction = new(distanceToDestination.x, 0, distanceToDestination.y);
                 transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
-                characterController.Move(direction * Time.deltaTime * MOVE_SPEED);
+                if (characterController.enabled)
+                {
+                    characterController.Move(MOVE_SPEED * Time.deltaTime * direction);
+                }
             }
             else
             {

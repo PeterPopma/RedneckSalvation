@@ -8,7 +8,7 @@ public class Mission : MonoBehaviour
     private string description;
     private bool hasFinished;
     private bool isActive;
-    private List<Vector2> destinationLocations = new List<Vector2>();
+    private List<Vector2> destinationLocations = new();
     private float startingTime;
     private int currentDestinationIndex;
     float timeLeftDelay;
@@ -23,20 +23,20 @@ public class Mission : MonoBehaviour
     public GameObject MissionGuy { get => missionGuy; set => missionGuy = value; }
     public string Name { get => name; set => name = value; }
 
-    protected void Start()
+    protected virtual void Start()
     {
         soundLevelUp = GameObject.Find("/Sound/LevelUp").GetComponent<AudioSource>();
     }
 
-    protected void Awake()
+    protected virtual void Awake()
     {
     }
 
-    protected void Update()
+    protected virtual void Update()
     {
     }
 
-    protected void FixedUpdate()
+    protected virtual void FixedUpdate()
     {
         if (timeLeftDelay > 0)
         {
@@ -45,13 +45,20 @@ public class Mission : MonoBehaviour
             {
                 soundLevelUp.Play();
                 float totalTime = Time.time - startingTime;
-                string medalText = "bronze";
+                string medalText;
                 if (totalTime <= maxTimeGold)
                 {
+                    Progress.Instance.MedalsGold++;
                     medalText = "gold";
                 } else if (totalTime <= maxTimeSilver)
                 {
+                    Progress.Instance.MedalsSilver++;
                     medalText = "silver";
+                }
+                else
+                {
+                    Progress.Instance.MedalsBronze++; 
+                    medalText = "bronze";
                 }
 
                 UI ui = GameObject.Find("Scripts/UI").GetComponent<UI>();
@@ -89,6 +96,7 @@ public class Mission : MonoBehaviour
 
     public void CompleteMission(float delay = 0.01f)
     {
+        Progress.Instance.MissionsCompleted++;
         timeLeftDelay = delay;
     }
 

@@ -4,12 +4,11 @@ using UnityEngine;
 
 public class Horse : MonoBehaviour
 {
-    [SerializeField] private GameObject effectsParent;
+    const int LAYER_JUMP = 6;
     [SerializeField] private Transform vfxSmoke;
     [SerializeField] private Transform smokePosition;
-    [SerializeField] private float timeBetweenSmoke = 1.5f;
-    float timeLastSmoke;
-    List<AudioSource> soundGallop = new List<AudioSource>();
+    private const float TIME_BETWEEN_SMOKE = 1.5f;
+    readonly List<AudioSource> soundGallop = new();
     Player player;
     ThirdPersonController thirdPersonController;
     Animator animator;
@@ -20,6 +19,9 @@ public class Horse : MonoBehaviour
     private float timeleftGallop;
     private float timeleftDust;
     private int currentSound;
+    private bool isJumping;
+
+    public bool IsJumping { get => isJumping; set => isJumping = value; }
 
     void Awake()
     {
@@ -28,6 +30,15 @@ public class Horse : MonoBehaviour
         soundGallop.Add(GameObject.Find("/Sound/Gallop1").GetComponent<AudioSource>());
         soundGallop.Add(GameObject.Find("/Sound/Gallop2").GetComponent<AudioSource>());
         soundGallop.Add(GameObject.Find("/Sound/Gallop3").GetComponent<AudioSource>());
+    }
+
+    public void Jump()
+    {
+        isJumping = true;
+        timeLeftAnimation = 1.2f;
+        animationLayerPlaying = LAYER_JUMP;
+        animator.SetLayerWeight(animationLayerPlaying, 1);
+        animator.Play("Jump", animationLayerPlaying, 0);
     }
 
     void Start()
@@ -94,9 +105,9 @@ public class Horse : MonoBehaviour
         timeleftDust -= Time.deltaTime * thirdPersonController.AnimationBlend;
         if (timeleftDust < 0)
         {
-            timeleftDust = 2;
+            timeleftDust = TIME_BETWEEN_SMOKE;
             Transform newEffect = Instantiate(vfxSmoke, smokePosition.position, Quaternion.identity);
-            newEffect.parent = effectsParent.transform;
+            newEffect.parent = Game.Instance.EffectsParent.transform;
         }
     }
 
@@ -104,9 +115,13 @@ public class Horse : MonoBehaviour
     {
         if (isPlayerRidingHorse)
         {
-            GallopSound();
+            if(!isJumping)
+            {
+                GallopSound();
+            }
             ShowDust();
             animator.SetFloat(animIDSpeed, thirdPersonController.AnimationBlend);
+            // there is movement in this animation, so make sure the horse stays with the player.
             transform.localPosition = new Vector3(0, -2.3f, 0);
         }
         else
@@ -119,15 +134,15 @@ public class Horse : MonoBehaviour
                     PlayRandomAnimation();
                 }
             }
-            else
+        }
+        if (timeLeftAnimation != 0)
+        {
+            timeLeftAnimation -= Time.deltaTime;
+            if (timeLeftAnimation <= 0)
             {
-                timeLeftAnimation -= Time.deltaTime;
-                if (timeLeftAnimation <= 0)
-                {
-                    timeLeftAnimation = 0;
-                    animator.SetLayerWeight(animationLayerPlaying, 0);
-                    animationLayerPlaying = 0;
-                }
+                timeLeftAnimation = 0;
+                animator.SetLayerWeight(animationLayerPlaying, 0);
+                animationLayerPlaying = 0;
             }
         }
     }

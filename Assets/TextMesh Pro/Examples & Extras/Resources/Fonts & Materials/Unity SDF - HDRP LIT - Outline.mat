@@ -142,7 +142,7 @@ Material:
     - _FaceText_ST: {r: 1, g: 1, b: 0, a: 0}
     - _FaceUVSpeed: {r: 0, g: 0, b: 0, a: 0}
     - _IsoPerimeter: {r: 0, g: 0.188, b: 0, a: 0}
-    - _OutlineColor1: {r: 0, g: 0, b: 0, a: 1}
+    - _OutlineColor1: {r: 1, g: 1, b: 1, a: 1}
     - _OutlineColor2: {r: 0.009433985, g: 0.02534519, b: 1, a: 1}
     - _OutlineColor3: {r: 0, g: 0, b: 0, a: 1}
     - _OutlineOffset1: {r: 0, g: 0, b: 0, a: 0}

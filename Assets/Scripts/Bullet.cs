@@ -8,7 +8,7 @@ public class Bullet : MonoBehaviour
     public float lifetime = 3.0f;
     private Vector3 moveDir;
     private Vector3 hitPosition;
-    private float moveSpeed = 30f;
+    private readonly float moveSpeed = 30f;
     private float previousDistance;
     private bool madeHit;
 
@@ -59,7 +59,7 @@ public class Bullet : MonoBehaviour
             // put camera in front of NPC
             transform.position = hitPosition - 10 * moveDir;
             transform.GetChild(0).GetComponent<Renderer>().enabled = false;
-            Invoke("EndOfLife", 1.5f);
+            Invoke(nameof(EndOfLife), 1.5f);
         }
         previousDistance = distance;
 

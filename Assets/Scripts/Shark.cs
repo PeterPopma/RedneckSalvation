@@ -19,7 +19,6 @@ public class Shark : MonoBehaviour
         {
             offset = 2 - offset;
         }
-        transform.position = new Vector3(center.x + RADIUS * Mathf.Cos(currentAngle), center.y + offset * 3, center.z + RADIUS * Mathf.Sin(currentAngle));
-        transform.rotation = Quaternion.Euler((float)((0.5 - offset) * 20), - currentAngle * 180 / Mathf.PI, 0);
+        transform.SetPositionAndRotation(new Vector3(center.x + RADIUS * Mathf.Cos(currentAngle), center.y + offset * 3, center.z + RADIUS * Mathf.Sin(currentAngle)), Quaternion.Euler((float)((0.5 - offset) * 20), - currentAngle * 180 / Mathf.PI, 0));
     }
 }

@@ -8,8 +8,9 @@ using UnityEngine.Rendering.HighDefinition;
 public class DayTime : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI textDayTime;
-    [SerializeField] Light sun;
-    [SerializeField] Light moon;
+    [SerializeField] Light sunLight;
+    [SerializeField] Light moonLight;
+    [SerializeField] GameObject moonMesh;
     [SerializeField] Volume volumeSkyFog;
     [SerializeField] GameObject groundSmoke;
     [SerializeField] Transform lightRoot;
@@ -26,7 +27,8 @@ public class DayTime : MonoBehaviour
     private void Start()
     {
         minuteOfDay = MINUTES_PER_DAY / 2;
-        SetLights(false);
+        SetLights(false); 
+        moonMesh.SetActive(false);
     }
 
     void FixedUpdate()
@@ -43,9 +45,9 @@ public class DayTime : MonoBehaviour
             hours = 0;
         }
         textDayTime.text = hours.ToString("00") + ":" + (minuteOfDay % 60).ToString("00");
-        sun.transform.rotation = Quaternion.Euler(0, minuteOfDay / (float)MINUTES_PER_DAY * 360, 0);
+        sunLight.transform.rotation = Quaternion.Euler(0, minuteOfDay / (float)MINUTES_PER_DAY * 360, 0);
         elevation = ((720 - Mathf.Abs((MINUTES_PER_DAY / 2) - minuteOfDay)) * 0.083f) - 5; // 720..0..720  -> 0..720..0  -> 0..60..0  -> -5..55..-5
-        sun.transform.Rotate(new Vector3(elevation, 0, 0));
+        sunLight.transform.Rotate(new Vector3(elevation, 0, 0));
         if (elevation < 0 && !isNight)
         {
             SetNight(true);
@@ -62,9 +64,9 @@ public class DayTime : MonoBehaviour
         {
             SetLights(false);
         }
-        moon.enabled = elevation < 10;
+        moonLight.enabled = elevation < 10;
         groundSmoke.SetActive(elevation < 35 && minuteOfDay<MINUTES_PER_DAY/2);
-        sun.colorTemperature = (elevation + 10) * 128 + 500; // 1000..8000
+        sunLight.colorTemperature = (elevation + 10) * 128 + 500; // 1000..8000
     }
     private void SetLights(bool lightsOn)
     {
@@ -78,18 +80,18 @@ public class DayTime : MonoBehaviour
     private void SetNight(bool isNight)
     {
         this.isNight = isNight;
-        VisualEnvironment env;
-        if (volumeSkyFog.profile.TryGet<VisualEnvironment>(out env))
+        moonMesh.SetActive(isNight);
+        if (volumeSkyFog.profile.TryGet<VisualEnvironment>(out VisualEnvironment env))
         {
             if (isNight)
             {
                 env.skyType.value = Convert.ToInt32(SkyType.HDRI);
-                sun.intensity = 0;
+                sunLight.intensity = 0;
             }
             else
             {
                 env.skyType.value = Convert.ToInt32(SkyType.PhysicallyBased);
-                sun.intensity = 450000;
+                sunLight.intensity = 450000;
             }
         }
     }

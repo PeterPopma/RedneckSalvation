@@ -38,7 +38,7 @@ public class EnemySpawner : MonoBehaviour
         do
         {
             Vector3 spawnLocation;
-            float x, y, z;
+            float x, y=0, z;
             triesLeft--;
             if (centerObject == null)
             {
@@ -51,7 +51,16 @@ public class EnemySpawner : MonoBehaviour
                 z = centerObject.transform.position.z - centerRadius + Random.value * centerRadius * 2;
             }
             spawnLocation = new Vector3(x, 0, z);
-            y = Terrain.activeTerrain.SampleHeight(spawnLocation);
+            // y = terrain.SampleHeight(spawnPosition);
+            float terrainHeight;
+            foreach (Terrain terrain in Terrain.activeTerrains)
+            {
+                terrainHeight = terrain.SampleHeight(spawnLocation);
+                if (y < terrainHeight)
+                {
+                    y = terrainHeight;
+                }
+            }
             spawnPosition = new Vector3(x,y,z);
         } while (!NoOtherObjectsNearby(spawnPosition) && triesLeft > 0);
         GameObject newObject = Instantiate(pfSpawnObjects[objectIndex], spawnPosition,
@@ -72,6 +81,7 @@ public class EnemySpawner : MonoBehaviour
             timeLastSpawn = Time.time;
         }
     }
+
     private bool NoOtherObjectsNearby(Vector3 position)
     {
         Collider[] colliders = Physics.OverlapSphere(position, 10);

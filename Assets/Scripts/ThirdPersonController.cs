@@ -86,7 +86,7 @@ using UnityEngine.InputSystem;
         private float targetRotation = 0.0f;
         private float rotationVelocity;
         private float verticalVelocity;
-        private float terminalVelocity = 53.0f;
+        private readonly float terminalVelocity = 53.0f;
 
         // timeout deltatime
         private float _jumpTimeoutDelta;
@@ -176,7 +176,7 @@ using UnityEngine.InputSystem;
         private void GroundedCheck()
         {
             // set sphere position, with offset
-            Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset,
+            Vector3 spherePosition = new(transform.position.x, transform.position.y - GroundedOffset,
                 transform.position.z);
             Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers,
                 QueryTriggerInteraction.Ignore);
@@ -266,7 +266,9 @@ using UnityEngine.InputSystem;
             Vector3 targetDirection = Quaternion.Euler(0.0f, targetRotation, 0.0f) * Vector3.forward;
 
             // move the player
-            _controller.Move(targetDirection.normalized * (speed * Time.deltaTime) +
+            float distance = speed * Time.deltaTime;
+            Progress.Instance.DistanceTravelled += distance;
+            _controller.Move(targetDirection.normalized * distance +
                              new Vector3(0.0f, verticalVelocity, 0.0f) * Time.deltaTime);
 
             // update animator if using character
@@ -355,8 +357,8 @@ using UnityEngine.InputSystem;
 
         private void OnDrawGizmosSelected()
         {
-            Color transparentGreen = new Color(0.0f, 1.0f, 0.0f, 0.35f);
-            Color transparentRed = new Color(1.0f, 0.0f, 0.0f, 0.35f);
+            Color transparentGreen = new(0.0f, 1.0f, 0.0f, 0.35f);
+            Color transparentRed = new(1.0f, 0.0f, 0.0f, 0.35f);
 
             if (Grounded) Gizmos.color = transparentGreen;
             else Gizmos.color = transparentRed;

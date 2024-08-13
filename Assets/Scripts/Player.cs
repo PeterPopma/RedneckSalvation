@@ -9,16 +9,15 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-    const int WEAPON_PUNCH = 0, WEAPON_PISTOL = 1, WEAPON_RIFLE = 2, WEAPON_DYNAMITE = 3;
+    const int WEAPON_PUNCH = 0, WEAPON_PISTOL = 1, WEAPON_RIFLE = 2, WEAPON_DYNAMITE = 3, WEAPON_AXE = 4;
     const int LAYER_RIDE = 1, LAYER_SHOOT = 2, LAYER_PUNCH = 3, LAYER_HOLDRIFLE = 4, LAYER_FIRERIFLE = 5, LAYER_THROW = 6;
 
-    [SerializeField] private GameObject effectsParent;
-    [SerializeField] ParticleSystem particleSystem;
+    [SerializeField] new ParticleSystem particleSystem;
     [SerializeField] private LayerMask aimColliderLayerMask;
     [SerializeField] private Transform vfxFireGun;
     [SerializeField] private GameObject handPosition;
     [SerializeField] private CinemachineCamera vcamAim;
-    [SerializeField] private CinemachineCamera vcamHorse;
+    [SerializeField] private CinemachineCamera vcamPlayerFollow;
     [SerializeField] private CinemachineCamera vcamRagdoll;
     [SerializeField] private GameObject bloodSpawnPosition;
     [SerializeField] private GameObject pfBullet;
@@ -31,7 +30,9 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject imageRelease;
     [SerializeField] private GameObject pistol;
     [SerializeField] private GameObject rifle;
+    [SerializeField] private GameObject axe;
     [SerializeField] private GameObject dynamite;
+    [SerializeField] private GameObject pfAxe;
     [SerializeField] private GameObject pfDynamite;
     [SerializeField] private GameObject panelMap;
     [SerializeField] private GameObject playerSpawnPoint;
@@ -42,7 +43,7 @@ public class Player : MonoBehaviour
     [SerializeField] private Rig rigRifle;
     [SerializeField] private Rig rigHorse;
     [SerializeField] private Transform pfShell;
-    [SerializeField] private Rigidbody rigidbody;
+    [SerializeField] private new Rigidbody rigidbody;
     [SerializeField] private Transform hips;
     [SerializeField] Slider sliderHealthBar;
 
@@ -62,10 +63,10 @@ public class Player : MonoBehaviour
     float timeLeftPunching;
     float timeLeftBlood;
     float timeLeftExploded; 
-    float timeLastDynamiteThrow;
+    float timeLastWeaponThrow;
     float timeLeftDying;
-    private bool throwingDynamite = false;
-    private bool thrownDynamite = false;
+    private bool throwingWeapon = false;
+    private bool thrownWeapon = false;
     private Vector3 hitPosition;
     private RigBuilder rigBuilder;
     private Transform hitTransForm;
@@ -74,6 +75,7 @@ public class Player : MonoBehaviour
     bool hitEnemy;
     int activeWeapon;
     int health = 100;
+    private int timesStuck;
 
     [Header("Character Input Values")]
     public Vector2 move;
@@ -107,6 +109,7 @@ public class Player : MonoBehaviour
         soundScreamMale = GameObject.Find("/Sound/ScreamMale2").GetComponent<AudioSource>();
         soundScreamMale2 = GameObject.Find("/Sound/ScreamMale3").GetComponent<AudioSource>();
         characterController = gameObject.GetComponent<CharacterController>();
+        axe.SetActive(false);
         pistol.SetActive(false);
         rifle.SetActive(false);
         dynamite.SetActive(false);
@@ -168,7 +171,7 @@ public class Player : MonoBehaviour
         if (timeLeftDying > 0)
         {
             timeLeftDying -= Time.deltaTime;
-            if(timeLeftDying <= 0)
+            if (timeLeftDying <= 0)
             {
                 SceneManager.UnloadSceneAsync("MainScene");
                 SceneManager.LoadSceneAsync("MenuScene");
@@ -180,14 +183,16 @@ public class Player : MonoBehaviour
             timeLeftExploded -= Time.deltaTime;
             if (timeLeftExploded < 0)
             {
-                float y = Terrain.activeTerrain.SampleHeight(hips.position);
-                if (hips.position.y - y > 1)
+                float y = Game.Instance.MainTerrain.SampleHeight(hips.position);
+                if (timesStuck < 10 && hips.position.y - y > 1)
                 {
                     // not on the ground yet
                     timeLeftExploded = 2f;
+                    timesStuck++;     // prevent getting stuck when there is something wrong with sampling the terrain height
                 }
                 else
                 {
+                    timesStuck = 0;
                     transform.position = new Vector3(hips.position.x, y + 1, hips.position.z);
                     characterController.enabled = true;
                     animator.enabled = true;
@@ -221,11 +226,11 @@ public class Player : MonoBehaviour
             if (hitEnemy==false && timeLeftPunching < 0.8f)
             {
                 hitEnemy = true;
-                float hitDistance = (transform.position - hitPosition).magnitude;
-                if (hitDistance < 4f && hitNPC!=null)
+                float hitDistance = (transform.position - hitPosition).sqrMagnitude;
+                if (hitDistance < 16f && hitTransForm!=null)
                 {
                     soundPunch.Play();
-                    HandleNPCHit();
+                    CheckHit();
                 }
             }
         }
@@ -242,7 +247,7 @@ public class Player : MonoBehaviour
             {
                 smokeCreated = true;
                 Transform newEffect = Instantiate(vfxFireGun, handPosition.transform.position, Quaternion.identity);
-                newEffect.parent = effectsParent.transform;
+                newEffect.parent = Game.Instance.EffectsParent.transform;
                 if (activeWeapon == WEAPON_PISTOL)
                 {
                     gunFirePistol.SetActive(true);
@@ -258,28 +263,48 @@ public class Player : MonoBehaviour
                 gunFireRifle.SetActive(false);
             }
         }
-        if (throwingDynamite)
+        if (throwingWeapon)
         {
-            if (thrownDynamite == false && Time.time >= timeLastDynamiteThrow + 0.7f)
+            if (thrownWeapon == false && Time.time >= timeLastWeaponThrow + 0.7f)
             {
-                dynamite.SetActive(false);
-                thrownDynamite = true;
-                Instantiate(pfDynamite, handPosition.transform.position, Quaternion.LookRotation(transform.forward, Vector3.up));
+                thrownWeapon = true;
+                if (activeWeapon == WEAPON_AXE)
+                {
+                    axe.SetActive(false);
+                    Instantiate(pfAxe, handPosition.transform.position, Quaternion.LookRotation(transform.forward, Vector3.up));
+                }
+                else
+                {
+                    dynamite.SetActive(false);
+                    Instantiate(pfDynamite, handPosition.transform.position, Quaternion.LookRotation(transform.forward, Vector3.up));
+                }
             }
-            if (Time.time >= timeLastDynamiteThrow + 0.7f)
+            if (Time.time >= timeLastWeaponThrow + 0.7f)
             {
                 animator.SetLayerWeight(LAYER_THROW, Mathf.Lerp(animator.GetLayerWeight(LAYER_THROW), 0f, Time.deltaTime * 10f));
             }
-            if (Time.time >= timeLastDynamiteThrow + 5.9f)
+            if (Time.time >= timeLastWeaponThrow + 1.2f)
             {
-                dynamite.SetActive(true);
-                throwingDynamite = false;
-                thrownDynamite = false;
+                FinishThrowing();
             }
         }
 
         HandleAiming();
         HandleShooting();
+    }
+
+    public void FinishThrowing()
+    {
+        if (activeWeapon == WEAPON_AXE)
+        {
+            axe.SetActive(true);
+        }
+        else
+        {
+            dynamite.SetActive(true);
+        }
+        throwingWeapon = false;
+        thrownWeapon = false;
     }
 
     public void FixedUpdate()
@@ -302,7 +327,10 @@ public class Player : MonoBehaviour
 
     public void HandleNPCHit()
     {
-        hitNPC.Hit(hitPosition, transform.position);
+        if (hitNPC != null)
+        {
+            hitNPC.Hit(transform.position);
+        }
         particleSystem.transform.position = hitPosition;
         particleSystem.Play();
         timeLeftBlood = 0.5f;
@@ -329,18 +357,43 @@ public class Player : MonoBehaviour
 //        hitIndicator.transform.position = hitPosition;
     }
 
-    private void CheckEnemyHit()
+    private void CheckHit(GameObject gunFire = null)
     {
         if (hitTransForm != null)
         {
             hitNPC = hitTransForm.GetComponent<NPC>();
-            if (hitNPC == null)
+            if (hitNPC != null)
             {
-                Tent tent = hitTransForm.GetComponent<Tent>();
-                if (tent != null)
+                if (hitNPC.TimesHit > 1 && !hitNPC.HasDied && hitNPC.UseRagdoll == false && Random.value > 0.5)
                 {
-                    tent.Hit();
+                    hitNPC.NpcState = NPCState_.StandingStill;
+                    GameObject bullet = Instantiate(pfBullet, gunFire.transform.position, Quaternion.LookRotation(transform.forward, Vector3.up));
+                    Bullet bulletScript = bullet.GetComponent<Bullet>();
+                    bulletScript.Setup(hitPosition, this);
                 }
+                else
+                {
+                    HandleNPCHit();
+                }
+                return;
+            }
+            Target target = hitTransForm.GetComponent<Target>();
+            if (target != null)
+            {
+                target.Hit(hitPosition);
+                return;
+            }
+            Tent tent = hitTransForm.GetComponent<Tent>();
+            if (tent != null)
+            {
+                tent.Hit();
+                return;
+            }
+            DynamiteLarge dynamiteLarge = hitTransForm.GetComponent<DynamiteLarge>();
+            if (dynamiteLarge != null)
+            {
+                dynamiteLarge.Hit();
+                return;
             }
         }
         else
@@ -358,7 +411,7 @@ public class Player : MonoBehaviour
             vcamAim.enabled = true;
             aimCursor.enabled = true;
 
-            Vector3 aimLocationXZ = new Vector3(hitPosition.x, hitPosition.y, hitPosition.z);
+            Vector3 aimLocationXZ = new(hitPosition.x, hitPosition.y, hitPosition.z);
             aimLocationXZ.y = transform.position.y;
 
             // Turn player towards aim point (only x and z axis)
@@ -395,7 +448,7 @@ public class Player : MonoBehaviour
             return;
         }
         imageUnmount.SetActive(isRiding);
-        vcamHorse.enabled = isRiding;
+        vcamPlayerFollow.GetComponent<CinemachineThirdPersonFollow>().CameraDistance = isRiding ? 20 : Game.Instance.ViewDistance;
         gameObject.GetComponent<ThirdPersonController>().IsRidingHorse = isRiding;
         if (isRiding)
         {
@@ -470,10 +523,10 @@ public class Player : MonoBehaviour
             Instantiate(pfShell, rifle.transform.position, Quaternion.LookRotation(transform.forward, Vector3.up));
             ShootGun(gunFireRifle);
         }
-        if (activeWeapon == WEAPON_DYNAMITE)
+        if (activeWeapon == WEAPON_DYNAMITE || activeWeapon == WEAPON_AXE)
         {
-            timeLastDynamiteThrow = Time.time;
-            throwingDynamite = true;
+            timeLastWeaponThrow = Time.time;
+            throwingWeapon = true;
             animator.Play("Throw", LAYER_THROW, 0f);
             animator.SetLayerWeight(LAYER_THROW, 1f);
         }
@@ -484,22 +537,7 @@ public class Player : MonoBehaviour
         timeLeftShooting = 0.7f;
         smokeCreated = false;
         HandleShooting();
-        CheckEnemyHit();
-        if (hitNPC != null)
-        {
-            if (hitNPC.TimesHit > 1 && !hitNPC.HasDied && hitNPC.UseRagdoll == false && Random.value > 0.5)
-            {
-                hitNPC.NpcState = NPCState_.StandingStill;
-                GameObject bullet = Instantiate(pfBullet, gunFire.transform.position, Quaternion.LookRotation(transform.forward, Vector3.up));
-                Bullet bulletScript = bullet.GetComponent<Bullet>();
-                bulletScript.Setup(hitPosition, this);
-            }
-            else
-            {
-                HandleNPCHit();
-            }
-        }
-
+        CheckHit(gunFire);
     }
 
     public void Explode(int strength = 80)
@@ -521,13 +559,13 @@ public class Player : MonoBehaviour
         animator.SetLayerWeight(LAYER_PUNCH, 0f);
         animator.SetLayerWeight(LAYER_HOLDRIFLE, 0f);
         animator.SetLayerWeight(LAYER_FIRERIFLE, 0f);
-        if (activeWeapon > WEAPON_DYNAMITE)
+        if (activeWeapon > WEAPON_AXE)
         {
             activeWeapon = WEAPON_PUNCH;
         }
         if (activeWeapon == WEAPON_PUNCH)
         {
-            dynamite.SetActive(false);
+            axe.SetActive(false);
             imageIconWeapon.GetComponent<Image>().sprite = Resources.Load<Sprite>("icon_fist");
         }
         if (activeWeapon == WEAPON_PISTOL)
@@ -547,17 +585,23 @@ public class Player : MonoBehaviour
             rifle.SetActive(false);
             imageIconWeapon.GetComponent<Image>().sprite = Resources.Load<Sprite>("icon_dynamite");
         }
+        if (activeWeapon == WEAPON_AXE)
+        {
+            dynamite.SetActive(false);
+            axe.SetActive(true);
+            imageIconWeapon.GetComponent<Image>().sprite = Resources.Load<Sprite>("icon_axe");
+        }
     }
 
     private void OnAim(InputValue value)
     {
         isAiming = value.isPressed;
-        if (activeWeapon == 1)
+        if (activeWeapon == WEAPON_PISTOL)
         {
             animator.Play("Shoot", LAYER_SHOOT, 0);
             animator.SetLayerWeight(LAYER_SHOOT, 1);
         }
-        if (activeWeapon == 2)
+        if (activeWeapon == WEAPON_RIFLE)
         {
             animator.Play("HoldRifle", LAYER_HOLDRIFLE, 0);
             animator.SetLayerWeight(LAYER_HOLDRIFLE, 1);
@@ -581,9 +625,50 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void OnToggleMiniMap()
+    {
+        Game.Instance.ShowMiniMap = !Game.Instance.ShowMiniMap;
+        Game.Instance.ShowMessage("Minimap: " + (Game.Instance.ShowMiniMap ? "On" : "Off"));
+    }
+
+    public void OnChangeView()
+    {
+        if (Game.Instance.ViewDistance == 10)
+        {
+            Game.Instance.ViewDistance = 5;
+        }
+        else if(Game.Instance.ViewDistance == 5)
+        {
+            Game.Instance.ViewDistance = 1;
+        }
+        else
+        {
+            Game.Instance.ViewDistance = 10;
+        }
+        vcamPlayerFollow.GetComponent<CinemachineThirdPersonFollow>().CameraDistance = Horse!=null ? 20 : Game.Instance.ViewDistance;
+        Game.Instance.ShowMessage("View Distance: " + Game.Instance.ViewDistance);
+    }
+
+    public void OnToggleSuperSpeed()
+    {
+        if (gameObject.GetComponent<ThirdPersonController>().SprintSpeed < 300)
+        {
+            gameObject.GetComponent<ThirdPersonController>().SprintSpeed = 300;
+        }
+        else
+        {
+            gameObject.GetComponent<ThirdPersonController>().SprintSpeed = 16;
+        }
+        Game.Instance.ShowMessage("Sprint Speed: " + gameObject.GetComponent<ThirdPersonController>().SprintSpeed);
+    }
+
     public void OnJump(InputValue value)
     {
         jump = value.isPressed;
+        if (Horse != null)
+        {
+            Horse.Jump();
+        }
     }
 
     public void OnSprint(InputValue value)
@@ -604,6 +689,15 @@ public class Player : MonoBehaviour
     private void OnMap(InputValue value)
     {
         UIScript.ShowMap = value.isPressed;
-        //panelMap.SetActive(value.isPressed);
+    }
+
+    private void OnProgressScreen(InputValue value)
+    {
+        UIScript.ToggleAchievementsScreen();
+    }
+
+    private void OnHelp()
+    {
+        UIScript.ToggleHelpScreen();
     }
 }

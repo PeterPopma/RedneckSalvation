@@ -29,7 +29,7 @@ public class Dynamite : MonoBehaviour
         transform.Rotate(axisOfRotation, 1000.0f * Time.smoothDeltaTime);
 
         lifeTime -= Time.deltaTime;
-        if (lifeTime < 0f)
+        if (lifeTime < 0)
         {
             Vector3 explosionPos = transform.position;
             Collider[] colliders = Physics.OverlapSphere(explosionPos, 20.0f);
@@ -39,10 +39,35 @@ public class Dynamite : MonoBehaviour
             {
                 if (collider.gameObject.GetComponent<Explodable>() != null)
                 {
-                    collider.gameObject.GetComponent<Explodable>().Explode();
+                    bool cancelExplosion = false;
+
+                    if (collider.gameObject.transform.name == "ExplosionTriggerSaloon")
+                    {
+                        if (Game.Instance.ActiveMission != null && Game.Instance.ActiveMission.Name == "bank")
+                        {
+                            Game.Instance.DisplayMission("Maybe that was not such a good idea.. Thanks anyway, good job!", 3);
+                            Game.Instance.ActiveMission.CompleteMission(12);
+                        }
+                        else
+                        {
+                            // don't blow up the saloon yet!
+                            cancelExplosion = true;
+                        }
+                    }
+                    if (collider.gameObject.transform.name == "ExplosionTriggerFarm")
+                    {
+                        cancelExplosion = true;
+                    }
+
+                    if (!cancelExplosion)
+                    {
+                        collider.gameObject.GetComponent<Explodable>().Explode();
+                    }
                     containsExplodable = true;
                 }
             }
+            // if we blow up something, the player does not get affected by the blast.
+            // this is used to blow up the safe in the saloon and makes this second iteration necessary.
             foreach (Collider collider in colliders)
             {
                 if (!containsExplodable && collider.gameObject.GetComponent<Player>() != null)
@@ -62,7 +87,7 @@ public class Dynamite : MonoBehaviour
                 vcamPlayer.GetComponent<CameraShake>().ShakeCamera(10, 12f);
             }
             Instantiate(vfxExplosion, transform.position, Quaternion.identity);
-            Destroy(this.gameObject);
+            Destroy(gameObject);
         }
     }
 

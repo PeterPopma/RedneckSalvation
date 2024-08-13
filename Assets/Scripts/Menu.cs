@@ -18,7 +18,7 @@ public class Menu : MonoBehaviour
         if (delayLoad > 0)
         {
             delayLoad -= Time.deltaTime;
-            if(delayLoad < 0)
+            if (delayLoad < 0)
             {
                 SceneManager.LoadSceneAsync("MainScene");
             }
@@ -29,10 +29,5 @@ public class Menu : MonoBehaviour
     {
         textLoading.enabled = true;
         delayLoad = 0.1f;
-    }
-
-    IEnumerator waiter()
-    {
-        yield return 1;
     }
 }
